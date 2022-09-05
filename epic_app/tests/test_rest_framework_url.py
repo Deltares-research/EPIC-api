@@ -1,4 +1,5 @@
 import json
+import random
 from pathlib import Path
 from typing import Callable, Optional, Type
 
@@ -1014,6 +1015,46 @@ class TestAnswerViewSet:
         changed_answer = answer_type.objects.get(pk=answer_pk)
         assert changed_answer is not None
         self._compare_answer_fields(changed_answer, json_data, lambda x, y: x == y)
+
+
+@django_postgresql_db
+class TestSummaryViewSet:
+
+    url_root = "/api/summary/"
+
+    def test_GET_summary_linkages_returns_json(self, api_client: APIClient):
+        # Define test data.
+        q_pk = 42  # For now we are not really going to use it.
+        full_url = self.url_root + str(q_pk) + "/linkages/"
+        """
+        {
+            "id": 1,
+            "name": "National Water Resource Management Sector Framework",
+            "selected_programs": [3, 5, 7],
+        }
+        """
+
+        def set_linkages_values(linkage_question: LinkagesQuestion, e_user: EpicUser):
+            mca = MultipleChoiceAnswer(question=linkage_question, user=e_user)
+            mca.save()
+            selected = random.sample(list(Program.objects.all()), k=2)
+            mca.selected_programs.add(*selected)
+
+        for e_user in EpicUser.objects.all():
+            for l_question in LinkagesQuestion.objects.all():
+                set_linkages_values(l_question, e_user)
+        expected_result_dict = {}
+        # Run test
+        set_user_auth_token(api_client, "Palpatine")
+        response = api_client.get(full_url)
+
+        # Verify final expectations.
+        assert response.status_code == 200
+        # As many answers as users there are
+        assert len(response.data) == len(LinkagesQuestion.objects.all())
+
+    def test_GET_summary_evolution_returns_response_code(self):
+        pass
 
 
 @django_postgresql_db

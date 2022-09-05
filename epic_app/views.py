@@ -275,7 +275,7 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
 class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Question.objects.all()
     serializer_class = epic_serializer.QuestionSerializer
-    permissiion_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [permissions.DjangoModelPermissions]
 
     @staticmethod
     def _get_related_answer_type(question_pk: str) -> Type[Answer]:
@@ -445,3 +445,53 @@ class AnswerViewSet(viewsets.ModelViewSet):
             epic_serializer.AnswerSerializer.get_concrete_serializer(a_subtype)
         )
         return super().create(request, *args, **kwargs)
+
+
+class SummaryViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = epic_serializer.QuestionSerializer
+
+    def get_permissions(self):
+        """
+        `Answer` can only be created, updated or deleted when the authorized user is self.
+
+        Returns:
+            List[permissions.BasePermission]: List of permissions for the request being done.
+        """
+        if not self.request.data.get("user", None) and getattr(
+            self.request.user, "epicuser", False
+        ):
+            self.request.data["user"] = self.request.user.epicuser.id
+        if self.request.method in ["DELETE", "PUT", "PATCH"]:
+            return [epic_permissions.IsInstanceOwner()]
+        return [permissions.IsAuthenticated()]
+
+    @action(detail=True, url_path="linkages", url_name="linkages")
+    def retrieve_linkages_summary(
+        self, request: Request, pk: str = None
+    ) -> models.QuerySet:
+        """
+        Retrieves the `linkages` summary regardless of the `pk` being given.
+        ASSUMPTION: The request is done with an `EpicUser`.
+
+        Args:
+            request (Request): Request from the client.
+            pk (str, optional): `Answer` id. Defaults to None.
+        """
+
+        def _filter_queryset() -> Union[models.QuerySet, List[EpicUser]]:
+            if bool(request.user.is_staff or request.user.is_superuser):
+                return EpicUser.objects.all()
+            else:
+                epic_org = request.user.epicuser.organization
+                return epic_org.organization_users
+
+        r_serializer = epic_serializer.SummaryLinkagesSerializer(
+            LinkagesQuestion.objects.all(),
+            many=True,
+            context={
+                "request": request,
+                "users": _filter_queryset(),
+            },
+        )
+        return Response(r_serializer.data)

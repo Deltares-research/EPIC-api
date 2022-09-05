@@ -23,6 +23,9 @@ router.register(r"program", views.ProgramViewSet)
 router.register(r"question", views.QuestionViewSet)
 router.register(r"answer", views.AnswerViewSet)
 
+# Additional endpoints
+router.register(r"summary", views.SummaryViewSet)
+
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
