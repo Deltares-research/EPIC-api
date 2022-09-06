@@ -466,7 +466,7 @@ class SummaryViewSet(viewsets.ModelViewSet):
             return [epic_permissions.IsInstanceOwner()]
         return [permissions.IsAuthenticated()]
 
-    @action(detail=True, url_path="linkages", url_name="linkages")
+    @action(methods=["GET"], detail=True, url_path="linkages", url_name="linkages")
     def retrieve_linkages_summary(
         self, request: Request, pk: str = None
     ) -> models.QuerySet:
@@ -492,6 +492,34 @@ class SummaryViewSet(viewsets.ModelViewSet):
             context={
                 "request": request,
                 "users": _filter_queryset(),
+            },
+        )
+        return Response(r_serializer.data)
+
+    @action(methods=["GET"], detail=True, url_path="evolution", url_name="evolution")
+    def retrieve_evolution_summary(
+        self, request: Request, pk: str = None
+    ) -> models.QuerySet:
+        """
+        Retrieves the `evolution` summary regardless of the `pk` being given.
+        ASSUMPTION: The request is done with an `EpicUser`.
+
+        Args:
+            request (Request): Request from the client.
+            pk (str, optional): `Answer` id. Defaults to None.
+        """
+
+        def _filter_queryset() -> Union[models.QuerySet, List[EpicUser]]:
+            if bool(request.user.is_staff or request.user.is_superuser):
+                return EpicOrganization.objects.all()
+            else:
+                return request.user.epicuser.organization
+
+        r_serializer = epic_serializer.SummaryOrganizationEvolutionSerializer(
+            _filter_queryset(),
+            many=True,
+            context={
+                "request": request,
             },
         )
         return Response(r_serializer.data)

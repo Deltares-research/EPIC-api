@@ -1054,7 +1054,30 @@ class TestSummaryViewSet:
         assert len(response.data) == len(LinkagesQuestion.objects.all())
 
     def test_GET_summary_evolution_returns_response_code(self):
-        pass
+        # Define test data.
+        q_pk = 42  # For now we are not really going to use it.
+        full_url = self.url_root + str(q_pk) + "/evolution/"
+        """
+        """
+
+        def set_linkages_values(linkage_question: LinkagesQuestion, e_user: EpicUser):
+            mca = MultipleChoiceAnswer(question=linkage_question, user=e_user)
+            mca.save()
+            selected = random.sample(list(Program.objects.all()), k=2)
+            mca.selected_programs.add(*selected)
+
+        for e_user in EpicUser.objects.all():
+            for l_question in LinkagesQuestion.objects.all():
+                set_linkages_values(l_question, e_user)
+        expected_result_dict = {}
+        # Run test
+        set_user_auth_token(api_client, "Palpatine")
+        response = api_client.get(full_url)
+
+        # Verify final expectations.
+        assert response.status_code == 200
+        # As many answers as users there are
+        assert len(response.data) == len(LinkagesQuestion.objects.all())
 
 
 @django_postgresql_db
