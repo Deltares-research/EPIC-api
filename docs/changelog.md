@@ -1,3 +1,12 @@
+## v1.2.0 (2022-09-07)
+
+### Feat
+
+- Created endpoint for evolution-graph, which will call to the R script and generate a new evolution graph for all organizations
+- **views.py**: It is now no longer needed to provide a useless 'pk' when requesting summaries for either linkages or evolution
+- **summary_serializer.py**: Added logic to summarize evolution questions
+- Added new endpoint for generating linkages summary in a json format
+
 ## v1.1.0 (2022-07-01)
 
 ### Feat
