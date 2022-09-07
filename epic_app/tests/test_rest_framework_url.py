@@ -1,5 +1,6 @@
 import json
 import random
+from asyncio import subprocess
 from pathlib import Path
 from statistics import mean
 from typing import Callable, List, Optional, Type
