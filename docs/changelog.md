@@ -1,3 +1,9 @@
+## v1.3.0 (2022-09-07)
+
+### Feat
+
+- We now import multiple references for a program
+
 ## v1.2.0 (2022-09-07)
 
 ### Feat
