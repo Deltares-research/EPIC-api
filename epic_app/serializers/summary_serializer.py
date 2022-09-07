@@ -169,21 +169,21 @@ class SummaryEvolutionGraph:
             height=8,
         )
 
-    def _get_graph_path(self) -> Path:
-        return Path(self._summary_name)
-
-    def generate(self, graph_file: Path) -> Path:
+    def generate(self, output_dir: Path) -> Path:
+        if not output_dir.is_dir():
+            output_dir.mkdir(parents=True)
+        _graph_path = output_dir / self._summary_name
         try:
             _csv_file = SummaryEvolutionCsvFile.from_serialized_data(
                 self._evolution_summary
-            ).export(graph_file.parent)
-            self.execute_r_snippet(_csv_file)
+            ).export(output_dir)
+            self.execute_r_snippet(_csv_file, _graph_path)
             self._is_valid = True
         except Exception as exc_info:
             self._is_valid = False
             self._error_message = str(exc_info)
         finally:
-            return self._get_graph_path()
+            return _graph_path
 
     def is_valid(self) -> bool:
         return self._is_valid

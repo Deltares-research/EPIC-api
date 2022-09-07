@@ -1131,7 +1131,6 @@ class TestSummaryViewSet:
             for key, expected_value in _expected_data[idx].items():
                 assert evolution_data[key] == expected_value
 
-    @pytest.mark.skip(reason="R execution not yet implemented.")
     def test_GET_summary_evolution_graph_returns_response_code(
         self, api_client: APIClient
     ):
@@ -1149,6 +1148,9 @@ class TestSummaryViewSet:
         assert isinstance(response.content, dict)
         assert Path(response.content["summary_graph"]).is_file()
 
+    @pytest.mark.skip(
+        reason="R execution is implemented, this test should not be triggered."
+    )
     def test_GET_summary_evolution_graph_returns_fail_response_code(
         self, api_client: APIClient
     ):
