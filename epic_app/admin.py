@@ -20,7 +20,7 @@ from epic_app.models.epic_questions import (
     NationalFrameworkQuestion,
 )
 from epic_app.models.epic_user import EpicOrganization, EpicUser
-from epic_app.models.models import Agency, Area, Group, Program
+from epic_app.models.models import Agency, Area, Group, Program, ProgramReference
 
 # Models exposed to the admin page .
 admin.site.register(EpicUser)
@@ -29,6 +29,7 @@ admin.site.register(Area, AreaAdmin)
 admin.site.register(Agency, AgencyAdmin)
 admin.site.register(Group)
 admin.site.register(Program)
+admin.site.register(ProgramReference)
 admin.site.register(NationalFrameworkQuestion, NfqAdmin)
 admin.site.register(KeyAgencyActionsQuestion, KaaAdmin)
 admin.site.register(EvolutionQuestion, EvoAdmin)
