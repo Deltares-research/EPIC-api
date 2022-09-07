@@ -187,3 +187,8 @@ In addition, poetry might require this extra step:
 ```bash
 export PATH="/root/.local/bin:$PATH"
 ```
+
+This might also be the case for the `PGSERVICEFILE`:
+```bash
+export PGSERVICEFILE=/var/www/EPIC-api/.pg_service.conf
+```
