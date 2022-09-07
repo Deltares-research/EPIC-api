@@ -1,3 +1,4 @@
+.pg_pass
 .django_secrets
 .django_debug
 .pg_service.conf
