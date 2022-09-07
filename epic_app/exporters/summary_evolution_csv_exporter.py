@@ -32,13 +32,11 @@ class SummaryEvolutionCsvFile:
 
     @classmethod
     def from_serialized_data(cls, serialized_data: List[dict]):
-        return cls(
-            **dict(
-                rows=list(
-                    map(SummaryEvolutionCsvRow.from_serialized_data, serialized_data)
-                )
-            )
+        _summary = cls()
+        _summary.rows = list(
+            map(SummaryEvolutionCsvRow.from_serialized_data, serialized_data)
         )
+        return _summary
 
     def _get_rows(self) -> List[SummaryEvolutionCsvRow]:
         from itertools import groupby
