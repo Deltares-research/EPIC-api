@@ -98,8 +98,6 @@ class Program(models.Model):
     group: Group = models.ForeignKey(
         to=Group, on_delete=models.CASCADE, related_name="programs"
     )
-    reference_description = models.TextField(blank=True, null=True)
-    reference_link = models.URLField(blank=True)
 
     @staticmethod
     def check_unique_name(value: str):
@@ -139,6 +137,14 @@ class Program(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class ProgramReference(models.Model):
+    description = models.TextField(blank=True, null=True)
+    link = models.URLField(blank=True)
+    program = models.ForeignKey(
+        to=Program, on_delete=models.CASCADE, related_name="references"
+    )
 
 
 # endregion
