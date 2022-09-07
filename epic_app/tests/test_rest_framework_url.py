@@ -1082,26 +1082,33 @@ class TestSummaryViewSet:
 
         expected_org_data = []
         for e_org in EpicOrganization.objects.all():
-            expected_evo_summary = []
-            for l_question in EvolutionQuestion.objects.all():
-                q_sel_choices = []
+            expected_program_avg = []
+            for p_program in Program.objects.all():
+                program_avg = []
                 for e_user in e_org.organization_users.all():
-                    q_sel_choices.append(set_evolution_values(l_question, e_user))
-                sel_avg = min(
-                    round(mean(q_sel_choices), 2), len(EvolutionChoiceType.as_list())
+                    _answers = [
+                        set_evolution_values(evo_q, e_user)
+                        for evo_q in EvolutionQuestion.objects.filter(program=p_program)
+                    ]
+                    if not _answers:
+                        program_avg.append(0)
+                    else:
+                        program_avg.append(mean(_answers))
+                expected_program_avg.append(
+                    {
+                        "id": p_program.pk,
+                        "area": p_program.group.area.name,
+                        "group": p_program.group.name,
+                        "program": p_program.name,
+                        "average": round(mean(program_avg), 2),
+                    }
                 )
-                expected_evo_summary.append(
-                    dict(
-                        id=l_question.pk,
-                        title=l_question.title,
-                        average=sel_avg,
-                    )
-                )
+
             expected_org_data.append(
                 dict(
                     id=e_org.pk,
                     organization=e_org.name,
-                    evolution_questions=expected_evo_summary,
+                    evolution_summary=expected_program_avg,
                 )
             )
 

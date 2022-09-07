@@ -97,15 +97,18 @@ class SummaryOrganizationEvolutionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance: EpicOrganization):
         _answers_summary = SummaryEvolutionSerializer(
-            EvolutionQuestion.objects.all(),
+            Program.objects.all(),
             many=True,
-            context={"request": self.context, "users": instance.organization_users},
+            context={
+                "request": self.context,
+                "organizations": EpicOrganization.objects.filter(pk=instance.pk),
+            },
         ).data
 
         return {
             "id": instance.pk,
             "organization": instance.name,
-            "evolution_questions": _answers_summary,
+            "evolution_summary": _answers_summary,
         }
 
 
