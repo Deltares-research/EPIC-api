@@ -1,10 +1,11 @@
 from pathlib import Path
 from statistics import mean
-from typing import List
+from typing import Any, List
 
 from rest_framework import serializers
 
 from epic_app.exporters.summary_evolution_csv_exporter import SummaryEvolutionCsvFile
+from epic_app.externals import eram_visuals
 from epic_app.models.epic_answers import EvolutionAnswer, MultipleChoiceAnswer
 from epic_app.models.epic_questions import (
     EvolutionChoiceType,
@@ -122,10 +123,51 @@ class SummaryEvolutionGraph:
         self._is_valid = False
         self._error_message = ""
 
-    def _execute_r_snippet(self, csv_file: Path) -> None:
+    @staticmethod
+    def execute_r_snippet(evo_csv_file: Path, evo_png_file: Path) -> None:
+        # Method based on the README.md from the repository:
+        # https://github.com/tanerumit/ERAMVisuals/
         import rpy2.robjects as robjects
+        import rpy2.robjects.packages as rpackages
 
-        robjects.r.source("/pathto/MyrScript.r", encoding="utf-8")
+        def install_required_packages(packages: List[str]):
+            utils = rpackages.importr("utils")
+            # select a mirror for R packages
+            utils.chooseCRANmirror(ind=1)  # select the first mirror in the list
+
+            # R vector of strings
+            from rpy2.robjects.vectors import StrVector
+
+            # Selectively install what needs to be install.
+            # We are fancy, just because we can.
+            names_to_install = [x for x in packages if not rpackages.isinstalled(x)]
+            if len(names_to_install) > 0:
+                utils.install_packages(StrVector(names_to_install))
+
+        def radial_plot_func() -> Any:
+            r_source = robjects.r["source"]
+            script_path = eram_visuals / "ERAMRadialPlot.R"
+            r_source(str(script_path))
+            return r_source
+
+        _required_packages = ("scales", "ggplot2", "dplyr", "readr", "stringr")
+        install_required_packages(_required_packages)
+        _radial_plot = radial_plot_func()
+        _readr = rpackages.importr("readr")
+        _ggplot2 = rpackages.importr("ggplot2")
+        _data = _readr.read_csv(str(evo_csv_file))
+        _radial_data = robjects.r["ERAMRadialPlot"](_data)
+
+        # Save png and pdf.
+        _ggplot2.ggsave(
+            filename=str(evo_png_file), plot=_radial_data, width=8, height=8
+        )
+        _ggplot2.ggsave(
+            filename=str(evo_png_file.with_suffix(".pdf")),
+            plot=_radial_data,
+            width=8,
+            height=8,
+        )
 
     def _get_graph_path(self) -> Path:
         return Path(self._summary_name)
@@ -135,7 +177,7 @@ class SummaryEvolutionGraph:
             _csv_file = SummaryEvolutionCsvFile.from_serialized_data(
                 self._evolution_summary
             ).export(graph_file.parent)
-            self._execute_r_snippet(_csv_file)
+            self.execute_r_snippet(_csv_file)
             self._is_valid = True
         except Exception as exc_info:
             self._is_valid = False
