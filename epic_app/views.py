@@ -26,6 +26,7 @@ from epic_app.models.epic_questions import (
 from epic_app.models.epic_user import EpicOrganization, EpicUser
 from epic_app.models.models import Agency, Area, Group, Program
 from epic_app.serializers.report_pdf import EpicPdfReport
+from epic_app.serializers.summary_serializer import SummaryEvolutionGraph
 from epic_app.utils import get_submodel_type, get_submodel_type_list
 
 
@@ -531,24 +532,26 @@ class SummaryViewSet(viewsets.ModelViewSet):
         url_name="evolution-graph",
     )
     def retrieve_evolution_summary_graph(self, request: Request) -> models.QuerySet:
-        _summary_name = "evolution_summary.png"
+        def _get_evolution_summary() -> dict:
+            return epic_serializer.SummaryEvolutionSerializer(
+                Program.objects.all(),
+                many=True,
+                context={"request": request, "users": EpicUser.objects.all()},
+            ).data
+
         _file_sys_storage = FileSystemStorage()
-        _graph_file_local = Path(_file_sys_storage.base_location) / _summary_name
-        _graph_file_url = _file_sys_storage.base_url + _summary_name
-
-        def call_r_script(image_path: Path) -> bool:
-            evolution_summary = self.retrieve_evolution_summary(request)
-            return False
-
+        _evolution_graph = SummaryEvolutionGraph(_get_evolution_summary())
+        _graph_file = _evolution_graph.generate(Path(_file_sys_storage.base_location))
+        _graph_url = _file_sys_storage.base_url + _graph_file.stem
         # Call R-script
-        if call_r_script(_graph_file_local):
+        if _evolution_graph.is_valid():
             return Response(
-                dict(summary_graph=_graph_file_url),
+                dict(summary_graph=_graph_url),
                 status=status.HTTP_201_CREATED,
             )
         return Response(
             dict(
-                summary_graph=_graph_file_url,
+                summary_graph=_graph_url,
                 reason="The graph generation failed during execution.",
             ),
             status=status.HTTP_417_EXPECTATION_FAILED,  # Expectation failed.
