@@ -1,7 +1,7 @@
 import json
 import random
 from pathlib import Path
-from typing import Callable, Optional, Type
+from typing import Callable, List, Optional, Type
 
 import pytest
 from django.contrib.auth.models import User
@@ -1024,8 +1024,7 @@ class TestSummaryViewSet:
 
     def test_GET_summary_linkages_returns_json(self, api_client: APIClient):
         # Define test data.
-        q_pk = 42  # For now we are not really going to use it.
-        full_url = self.url_root + str(q_pk) + "/linkages/"
+        full_url = self.url_root + "linkages/"
         """
         {
             "id": 1,
@@ -1034,16 +1033,28 @@ class TestSummaryViewSet:
         }
         """
 
-        def set_linkages_values(linkage_question: LinkagesQuestion, e_user: EpicUser):
+        def set_linkages_values(
+            linkage_question: LinkagesQuestion, e_user: EpicUser
+        ) -> List[int]:
             mca = MultipleChoiceAnswer(question=linkage_question, user=e_user)
             mca.save()
             selected = random.sample(list(Program.objects.all()), k=2)
             mca.selected_programs.add(*selected)
+            return [s.pk for s in selected]
 
-        for e_user in EpicUser.objects.all():
-            for l_question in LinkagesQuestion.objects.all():
-                set_linkages_values(l_question, e_user)
-        expected_result_dict = {}
+        expected_data = []
+        for l_question in LinkagesQuestion.objects.all():
+            q_sel_programs = []
+            for e_user in EpicUser.objects.all():
+                q_sel_programs.extend(set_linkages_values(l_question, e_user))
+            expected_data.append(
+                dict(
+                    id=l_question.program.pk,
+                    name=l_question.program.name,
+                    selected_programs=list(set(q_sel_programs)),
+                )
+            )
+
         # Run test
         set_user_auth_token(api_client, "Palpatine")
         response = api_client.get(full_url)
@@ -1052,24 +1063,26 @@ class TestSummaryViewSet:
         assert response.status_code == 200
         # As many answers as users there are
         assert len(response.data) == len(LinkagesQuestion.objects.all())
+        assert len(response.data) == len(expected_data)
+        for idx, linkage_data in enumerate(response.data):
+            for key, expected_value in expected_data[idx].items():
+                assert linkage_data[key] == expected_value
 
-    def test_GET_summary_evolution_returns_response_code(self):
+    def test_GET_summary_evolution_returns_response_code(self, api_client: APIClient):
         # Define test data.
-        q_pk = 42  # For now we are not really going to use it.
-        full_url = self.url_root + str(q_pk) + "/evolution/"
-        """
-        """
+        full_url = self.url_root + "evolution/"
 
-        def set_linkages_values(linkage_question: LinkagesQuestion, e_user: EpicUser):
-            mca = MultipleChoiceAnswer(question=linkage_question, user=e_user)
-            mca.save()
-            selected = random.sample(list(Program.objects.all()), k=2)
-            mca.selected_programs.add(*selected)
+        def set_evolution_values(evo_question: EvolutionQuestion, e_user: EpicUser):
+            eva = EvolutionAnswer(question=evo_question, user=e_user)
+            eva.save()
+            selected = random.choice(range(0, len(EvolutionChoiceType.as_list())))
+            eva.selected_choice = EvolutionChoiceType.from_int(selected)
+            eva.save()
 
         for e_user in EpicUser.objects.all():
-            for l_question in LinkagesQuestion.objects.all():
-                set_linkages_values(l_question, e_user)
-        expected_result_dict = {}
+            for l_question in EvolutionQuestion.objects.all():
+                set_evolution_values(l_question, e_user)
+
         # Run test
         set_user_auth_token(api_client, "Palpatine")
         response = api_client.get(full_url)
@@ -1077,7 +1090,13 @@ class TestSummaryViewSet:
         # Verify final expectations.
         assert response.status_code == 200
         # As many answers as users there are
-        assert len(response.data) == len(LinkagesQuestion.objects.all())
+        assert isinstance(response.data, dict)
+        assert set(response.data.keys()) == set(
+            ["organizations_averages", "summary_graph"]
+        )
+        assert len(response.data["organizations_averages"]) == len(
+            list(EpicOrganization.objects.all())
+        )
 
 
 @django_postgresql_db

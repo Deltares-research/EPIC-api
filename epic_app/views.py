@@ -466,17 +466,14 @@ class SummaryViewSet(viewsets.ModelViewSet):
             return [epic_permissions.IsInstanceOwner()]
         return [permissions.IsAuthenticated()]
 
-    @action(methods=["GET"], detail=True, url_path="linkages", url_name="linkages")
-    def retrieve_linkages_summary(
-        self, request: Request, pk: str = None
-    ) -> models.QuerySet:
+    @action(methods=["GET"], detail=False, url_path="linkages", url_name="linkages")
+    def retrieve_linkages_summary(self, request: Request) -> models.QuerySet:
         """
-        Retrieves the `linkages` summary regardless of the `pk` being given.
+        Retrieves the `linkages` summary.
         ASSUMPTION: The request is done with an `EpicUser`.
 
         Args:
             request (Request): Request from the client.
-            pk (str, optional): `Answer` id. Defaults to None.
         """
 
         def _filter_queryset() -> Union[models.QuerySet, List[EpicUser]]:
@@ -496,27 +493,27 @@ class SummaryViewSet(viewsets.ModelViewSet):
         )
         return Response(r_serializer.data)
 
-    @action(methods=["GET"], detail=True, url_path="evolution", url_name="evolution")
-    def retrieve_evolution_summary(
-        self, request: Request, pk: str = None
-    ) -> models.QuerySet:
+    @action(methods=["GET"], detail=False, url_path="evolution", url_name="evolution")
+    def retrieve_evolution_summary(self, request: Request) -> models.QuerySet:
         """
-        Retrieves the `evolution` summary regardless of the `pk` being given.
+        Retrieves the `evolution` summary.
         ASSUMPTION: The request is done with an `EpicUser`.
 
         Args:
             request (Request): Request from the client.
             pk (str, optional): `Answer` id. Defaults to None.
         """
-
+        # For now we do it for all organizations regardless of the user making the request.
         def _filter_queryset() -> Union[models.QuerySet, List[EpicUser]]:
             if bool(request.user.is_staff or request.user.is_superuser):
                 return EpicOrganization.objects.all()
             else:
-                return request.user.epicuser.organization
+                return EpicOrganization.objects.filter(
+                    id=request.user.epicuser.organization_id
+                )
 
         r_serializer = epic_serializer.SummaryOrganizationEvolutionSerializer(
-            _filter_queryset(),
+            EpicOrganization.objects.all(),
             many=True,
             context={
                 "request": request,

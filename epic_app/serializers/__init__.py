@@ -17,4 +17,7 @@ from epic_app.serializers.question_serializer import (
     QuestionSerializer,
 )
 from epic_app.serializers.report_serializer import ProgramReportSerializer
-from epic_app.serializers.summary_serializer import SummaryLinkagesSerializer
+from epic_app.serializers.summary_serializer import (
+    SummaryLinkagesSerializer,
+    SummaryOrganizationEvolutionSerializer,
+)

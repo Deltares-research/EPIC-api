@@ -29,7 +29,7 @@ class SummaryLinkagesSerializer(serializers.ModelSerializer):
         _answers_summary = list(set(_query.values_list("selected_programs", flat=True)))
 
         return {
-            "id": instance.program.name,
+            "id": instance.program.pk,
             "name": instance.program.name,
             "selected_programs": _answers_summary,
         }
