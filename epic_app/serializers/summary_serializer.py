@@ -75,9 +75,10 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
         return mean(avg_list)
 
     def to_representation(self, instance: Program):
+        _organizations = self.context["organizations"].all()
         _org_averages = [
             self._get_organization_average_evolution_program(epic_org, instance)
-            for epic_org in list(EpicOrganization.objects.all())
+            for epic_org in list(_organizations)
         ]
         _answers_summary = round(mean(_org_averages), 2)
         return {
@@ -123,6 +124,9 @@ class SummaryEvolutionGraph:
 
         robjects.r.source("/pathto/MyrScript.r", encoding="utf-8")
 
+    def _get_graph_path(self) -> Path:
+        return Path(self._summary_name)
+
     def generate(self, graph_file: Path) -> Path:
         try:
             _csv_file = SummaryEvolutionCsvFile.from_serialized_data(
@@ -133,6 +137,8 @@ class SummaryEvolutionGraph:
         except Exception as exc_info:
             self._is_valid = False
             self._error_message = str(exc_info)
+        finally:
+            return self._get_graph_path()
 
     def is_valid(self) -> bool:
         return self._is_valid

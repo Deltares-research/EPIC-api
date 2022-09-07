@@ -536,13 +536,16 @@ class SummaryViewSet(viewsets.ModelViewSet):
             return epic_serializer.SummaryEvolutionSerializer(
                 Program.objects.all(),
                 many=True,
-                context={"request": request, "users": EpicUser.objects.all()},
+                context={
+                    "request": request,
+                    "organizations": EpicOrganization.objects.all(),
+                },
             ).data
 
         _file_sys_storage = FileSystemStorage()
         _evolution_graph = SummaryEvolutionGraph(_get_evolution_summary())
         _graph_file = _evolution_graph.generate(Path(_file_sys_storage.base_location))
-        _graph_url = _file_sys_storage.base_url + _graph_file.stem
+        _graph_url = _file_sys_storage.base_url + _graph_file.name
         # Call R-script
         if _evolution_graph.is_valid():
             return Response(
