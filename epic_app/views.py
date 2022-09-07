@@ -5,7 +5,7 @@ from typing import List, Type, Union
 from django.contrib.auth.models import User
 from django.db import models
 from django.http import FileResponse, HttpResponseForbidden
-from rest_framework import permissions, serializers, viewsets
+from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -520,3 +520,26 @@ class SummaryViewSet(viewsets.ModelViewSet):
             },
         )
         return Response(r_serializer.data)
+
+    @action(
+        methods=["GET"],
+        detail=False,
+        url_path="evolution-graph",
+        url_name="evolution-graph",
+    )
+    def retrieve_evolution_summary_graph(self, request: Request) -> models.QuerySet:
+        evolution_summary = self.retrieve_evolution_summary(request)
+        _evolution_graph_file = None
+        # Call R-script
+        if _evolution_graph_file:
+            return Response(
+                dict(summary_graph=_evolution_graph_file),
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            dict(
+                summary_graph=_evolution_graph_file,
+                reason="The graph generation failed during execution.",
+            ),
+            status=status.HTTP_417_EXPECTATION_FAILED,  # Expectation failed.
+        )

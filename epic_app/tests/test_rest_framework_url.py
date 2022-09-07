@@ -1069,10 +1069,7 @@ class TestSummaryViewSet:
             for key, expected_value in expected_data[idx].items():
                 assert linkage_data[key] == expected_value
 
-    def test_GET_summary_evolution_returns_response_code(self, api_client: APIClient):
-        # Define test data.
-        full_url = self.url_root + "evolution/"
-
+    def _get_evolution_test_data(self, api_client: APIClient) -> List[dict]:
         def set_evolution_values(
             evo_question: EvolutionQuestion, e_user: EpicUser
         ) -> int:
@@ -1108,6 +1105,12 @@ class TestSummaryViewSet:
                 )
             )
 
+        return expected_org_data
+
+    def test_GET_summary_evolution_returns_response_code(self, api_client: APIClient):
+        # Define test data.
+        full_url = self.url_root + "evolution/"
+        _expected_data = self._get_evolution_test_data(api_client)
         # Run test
         set_user_auth_token(api_client, "Palpatine")
         response = api_client.get(full_url)
@@ -1116,10 +1119,47 @@ class TestSummaryViewSet:
         assert response.status_code == 200
         # As many answers as users there are
         assert isinstance(response.data, list)
-        assert len(response.data) == len(expected_org_data)
+        assert len(response.data) == len(_expected_data)
         for idx, evolution_data in enumerate(response.data):
-            for key, expected_value in expected_org_data[idx].items():
+            for key, expected_value in _expected_data[idx].items():
                 assert evolution_data[key] == expected_value
+
+    @pytest.mark.skip(reason="R execution not yet implemented.")
+    def test_GET_summary_evolution_graph_returns_response_code(
+        self, api_client: APIClient
+    ):
+        # Define test data.
+        full_url = self.url_root + "evolution-graph/"
+        # Initialize evolution test_data
+        self._get_evolution_test_data(api_client)
+
+        # Run test
+        set_user_auth_token(api_client, "Palpatine")
+        response = api_client.get(full_url)
+
+        # Verify final expectations.
+        assert response.status_code == 201
+        assert isinstance(response.content, dict)
+        assert Path(response.content["summary_graph"]).is_file()
+
+    def test_GET_summary_evolution_graph_returns_fail_response_code(
+        self, api_client: APIClient
+    ):
+        # Define test data.
+        full_url = self.url_root + "evolution-graph/"
+        self._get_evolution_test_data(api_client)
+        # Run test
+        set_user_auth_token(api_client, "Palpatine")
+        response = api_client.get(full_url)
+
+        # Verify final expectations.
+        assert response.status_code == 417
+        assert isinstance(response.data, dict)
+        assert (
+            response.data["reason"] == "The graph generation failed during execution."
+        )
+        # The file should still exist, just has not be 'validated'.
+        assert Path(response.data["summary_graph"]).is_file()
 
 
 @django_postgresql_db
