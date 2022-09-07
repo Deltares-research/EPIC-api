@@ -142,9 +142,12 @@ class Program(models.Model):
 class ProgramReference(models.Model):
     description = models.TextField(blank=True, null=True)
     link = models.URLField(blank=True)
-    program = models.ForeignKey(
+    program: Program = models.ForeignKey(
         to=Program, on_delete=models.CASCADE, related_name="references"
     )
+
+    def __str__(self) -> str:
+        return f"{self.program.pk}: {self.link} - {self.description}"
 
 
 # endregion
