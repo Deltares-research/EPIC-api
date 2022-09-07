@@ -568,8 +568,7 @@ class TestProgramViewSet:
             "id": 1,
             "name": "a",
             "description": "May the Force be with you",
-            "reference_description": None,
-            "reference_link": "",
+            "references": [],
             "agencies": [1, 2],
             "group": 1,
             "questions": [1, 2, 3, 4, 5, 6],
@@ -581,7 +580,7 @@ class TestProgramViewSet:
 
         # Verify final exepctations.
         assert response.status_code == 200
-        assert len(response.data) == 9  # 9 fields
+        assert len(response.data) == 8  # 8 fields
         assert response.data == exported_data
 
     @pytest.mark.parametrize(

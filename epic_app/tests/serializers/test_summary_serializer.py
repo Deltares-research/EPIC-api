@@ -1,4 +1,5 @@
 import random
+from statistics import mean
 
 import pytest
 from rest_framework.request import Request
@@ -53,12 +54,26 @@ def rest_framework_url_fixture(epic_test_db: pytest.fixture):
 @django_postgresql_db
 class TestSummaryEvolutionSerializer:
     def test_summary_evolution_to_representation(self):
+        # 1. Define test data and expectations.
         evo_q = EvolutionQuestion.objects.all().first()
+        evo_q_ans = (
+            EvolutionAnswer.objects.filter(question=evo_q)
+            .all()
+            .values_list("selected_choice", flat=True)
+        )
+        evo_q_ans_avg = round(mean(map(EvolutionChoiceType.to_int, evo_q_ans)), 2)
+
+        # 2. Run test
         represented_data = SummaryEvolutionSerializer(
             context=serializer_context
         ).to_representation(evo_q)
-        assert set(represented_data.keys()) == set(["id", "title", "average"])
-        assert isinstance(represented_data["average"], int)
+
+        # 3. Verify final expectations.
+        assert represented_data == {
+            "id": evo_q.pk,
+            "title": evo_q.title,
+            "average": evo_q_ans_avg,
+        }
 
 
 @django_postgresql_db
