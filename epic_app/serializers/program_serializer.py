@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from epic_app.models.models import Program
+from epic_app.models.models import Program, ProgramReference
+
+
+class ProgramReferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgramReference
+        fields = ("description", "link")
 
 
 class ProgramSerializer(serializers.ModelSerializer):
@@ -19,8 +25,7 @@ class ProgramSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "description",
-            "reference_description",
-            "reference_link",
+            "references",
             "agencies",
             "group",
             "questions",
@@ -38,11 +43,4 @@ class SimpleProgramSerializer(serializers.ModelSerializer):
         """
 
         model = Program
-        fields = (
-            "url",
-            "id",
-            "name",
-            "description",
-            "reference_description",
-            "reference_link",
-        )
+        fields = ("url", "id", "name", "description", "references")
