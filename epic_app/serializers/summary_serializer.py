@@ -1,3 +1,4 @@
+from statistics import mean
 from typing import List
 
 from rest_framework import serializers
@@ -47,15 +48,11 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
             user__in=user_ids, question=instance
         ).all()
 
-        def avg_answers(answers_list: List[EvolutionAnswer]) -> int:
+        def avg_answers(answers_list: List[EvolutionAnswer]) -> float:
             answers_as_int = map(EvolutionChoiceType.to_int, answers_list)
-            answers_avg = sum(answers_as_int) / len(answers_list)
-            return min(round(answers_avg, 0), len(EvolutionChoiceType.as_list()))
+            return round(mean(answers_as_int), 2)
 
-        _answers_summary = int(
-            avg_answers(_query.values_list("selected_choice", flat=True))
-        )
-
+        _answers_summary = avg_answers(_query.values_list("selected_choice", flat=True))
         return {
             "id": instance.pk,
             "title": instance.title,

@@ -1,6 +1,7 @@
 import json
 import random
 from pathlib import Path
+from statistics import mean
 from typing import Callable, List, Optional, Type
 
 import pytest
@@ -1072,16 +1073,40 @@ class TestSummaryViewSet:
         # Define test data.
         full_url = self.url_root + "evolution/"
 
-        def set_evolution_values(evo_question: EvolutionQuestion, e_user: EpicUser):
+        def set_evolution_values(
+            evo_question: EvolutionQuestion, e_user: EpicUser
+        ) -> int:
             eva = EvolutionAnswer(question=evo_question, user=e_user)
             eva.save()
             selected = random.choice(range(0, len(EvolutionChoiceType.as_list())))
             eva.selected_choice = EvolutionChoiceType.from_int(selected)
             eva.save()
+            return selected
 
-        for e_user in EpicUser.objects.all():
+        expected_org_data = []
+        for e_org in EpicOrganization.objects.all():
+            expected_evo_summary = []
             for l_question in EvolutionQuestion.objects.all():
-                set_evolution_values(l_question, e_user)
+                q_sel_choices = []
+                for e_user in e_org.organization_users.all():
+                    q_sel_choices.append(set_evolution_values(l_question, e_user))
+                sel_avg = min(
+                    round(mean(q_sel_choices), 2), len(EvolutionChoiceType.as_list())
+                )
+                expected_evo_summary.append(
+                    dict(
+                        id=l_question.pk,
+                        title=l_question.title,
+                        average=sel_avg,
+                    )
+                )
+            expected_org_data.append(
+                dict(
+                    id=e_org.pk,
+                    organization=e_org.name,
+                    evolution_questions=expected_evo_summary,
+                )
+            )
 
         # Run test
         set_user_auth_token(api_client, "Palpatine")
@@ -1090,13 +1115,11 @@ class TestSummaryViewSet:
         # Verify final expectations.
         assert response.status_code == 200
         # As many answers as users there are
-        assert isinstance(response.data, dict)
-        assert set(response.data.keys()) == set(
-            ["organizations_averages", "summary_graph"]
-        )
-        assert len(response.data["organizations_averages"]) == len(
-            list(EpicOrganization.objects.all())
-        )
+        assert isinstance(response.data, list)
+        assert len(response.data) == len(expected_org_data)
+        for idx, evolution_data in enumerate(response.data):
+            for key, expected_value in expected_org_data[idx].items():
+                assert evolution_data[key] == expected_value
 
 
 @django_postgresql_db
