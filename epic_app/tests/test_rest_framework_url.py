@@ -1159,7 +1159,7 @@ class TestSummaryViewSet:
             response.data["reason"] == "The graph generation failed during execution."
         )
         # The file should still exist, just has not be 'validated'.
-        assert Path(response.data["summary_graph"]).is_file()
+        assert "media/evolution_summary.png" in response.data["summary_graph"]
 
 
 @django_postgresql_db

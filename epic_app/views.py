@@ -1,8 +1,11 @@
 # Create your views here.
 import io
-from typing import List, Type, Union
+from pathlib import Path
+from typing import Any, List, Type, Union
 
 from django.contrib.auth.models import User
+from django.core.files import File
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.http import FileResponse, HttpResponseForbidden
 from rest_framework import permissions, serializers, status, viewsets
@@ -528,17 +531,24 @@ class SummaryViewSet(viewsets.ModelViewSet):
         url_name="evolution-graph",
     )
     def retrieve_evolution_summary_graph(self, request: Request) -> models.QuerySet:
-        evolution_summary = self.retrieve_evolution_summary(request)
-        _evolution_graph_file = None
+        _summary_name = "evolution_summary.png"
+        _file_sys_storage = FileSystemStorage()
+        _graph_file_local = Path(_file_sys_storage.base_location) / _summary_name
+        _graph_file_url = _file_sys_storage.base_url + _summary_name
+
+        def call_r_script(image_path: Path) -> bool:
+            evolution_summary = self.retrieve_evolution_summary(request)
+            return False
+
         # Call R-script
-        if _evolution_graph_file:
+        if call_r_script(_graph_file_local):
             return Response(
-                dict(summary_graph=_evolution_graph_file),
+                dict(summary_graph=_graph_file_url),
                 status=status.HTTP_201_CREATED,
             )
         return Response(
             dict(
-                summary_graph=_evolution_graph_file,
+                summary_graph=_graph_file_url,
                 reason="The graph generation failed during execution.",
             ),
             status=status.HTTP_417_EXPECTATION_FAILED,  # Expectation failed.
