@@ -1,6 +1,8 @@
 import json
+import random
 from pathlib import Path
-from typing import Callable, Optional, Type
+from statistics import mean
+from typing import Callable, List, Optional, Type
 
 import pytest
 from django.contrib.auth.models import User
@@ -1014,6 +1016,150 @@ class TestAnswerViewSet:
         changed_answer = answer_type.objects.get(pk=answer_pk)
         assert changed_answer is not None
         self._compare_answer_fields(changed_answer, json_data, lambda x, y: x == y)
+
+
+@django_postgresql_db
+class TestSummaryViewSet:
+
+    url_root = "/api/summary/"
+
+    def test_GET_summary_linkages_returns_json(self, api_client: APIClient):
+        # Define test data.
+        full_url = self.url_root + "linkages/"
+        """
+        {
+            "id": 1,
+            "name": "National Water Resource Management Sector Framework",
+            "selected_programs": [3, 5, 7],
+        }
+        """
+
+        def set_linkages_values(
+            linkage_question: LinkagesQuestion, e_user: EpicUser
+        ) -> List[int]:
+            mca = MultipleChoiceAnswer(question=linkage_question, user=e_user)
+            mca.save()
+            selected = random.sample(list(Program.objects.all()), k=2)
+            mca.selected_programs.add(*selected)
+            return [s.pk for s in selected]
+
+        expected_data = []
+        for l_question in LinkagesQuestion.objects.all():
+            q_sel_programs = []
+            for e_user in EpicUser.objects.all():
+                q_sel_programs.extend(set_linkages_values(l_question, e_user))
+            expected_data.append(
+                dict(
+                    id=l_question.program.pk,
+                    name=l_question.program.name,
+                    selected_programs=list(set(q_sel_programs)),
+                )
+            )
+
+        # Run test
+        set_user_auth_token(api_client, "Palpatine")
+        response = api_client.get(full_url)
+
+        # Verify final expectations.
+        assert response.status_code == 200
+        # As many answers as users there are
+        assert len(response.data) == len(LinkagesQuestion.objects.all())
+        assert len(response.data) == len(expected_data)
+        for idx, linkage_data in enumerate(response.data):
+            for key, expected_value in expected_data[idx].items():
+                assert linkage_data[key] == expected_value
+
+    def _get_evolution_test_data(self, api_client: APIClient) -> List[dict]:
+        def set_evolution_values(
+            evo_question: EvolutionQuestion, e_user: EpicUser
+        ) -> int:
+            eva = EvolutionAnswer(question=evo_question, user=e_user)
+            eva.save()
+            selected = random.choice(range(0, len(EvolutionChoiceType.as_list())))
+            eva.selected_choice = EvolutionChoiceType.from_int(selected)
+            eva.save()
+            return selected
+
+        expected_org_data = []
+        for e_org in EpicOrganization.objects.all():
+            expected_evo_summary = []
+            for l_question in EvolutionQuestion.objects.all():
+                q_sel_choices = []
+                for e_user in e_org.organization_users.all():
+                    q_sel_choices.append(set_evolution_values(l_question, e_user))
+                sel_avg = min(
+                    round(mean(q_sel_choices), 2), len(EvolutionChoiceType.as_list())
+                )
+                expected_evo_summary.append(
+                    dict(
+                        id=l_question.pk,
+                        title=l_question.title,
+                        average=sel_avg,
+                    )
+                )
+            expected_org_data.append(
+                dict(
+                    id=e_org.pk,
+                    organization=e_org.name,
+                    evolution_questions=expected_evo_summary,
+                )
+            )
+
+        return expected_org_data
+
+    def test_GET_summary_evolution_returns_response_code(self, api_client: APIClient):
+        # Define test data.
+        full_url = self.url_root + "evolution/"
+        _expected_data = self._get_evolution_test_data(api_client)
+        # Run test
+        set_user_auth_token(api_client, "Palpatine")
+        response = api_client.get(full_url)
+
+        # Verify final expectations.
+        assert response.status_code == 200
+        # As many answers as users there are
+        assert isinstance(response.data, list)
+        assert len(response.data) == len(_expected_data)
+        for idx, evolution_data in enumerate(response.data):
+            for key, expected_value in _expected_data[idx].items():
+                assert evolution_data[key] == expected_value
+
+    @pytest.mark.skip(reason="R execution not yet implemented.")
+    def test_GET_summary_evolution_graph_returns_response_code(
+        self, api_client: APIClient
+    ):
+        # Define test data.
+        full_url = self.url_root + "evolution-graph/"
+        # Initialize evolution test_data
+        self._get_evolution_test_data(api_client)
+
+        # Run test
+        set_user_auth_token(api_client, "Palpatine")
+        response = api_client.get(full_url)
+
+        # Verify final expectations.
+        assert response.status_code == 201
+        assert isinstance(response.content, dict)
+        assert Path(response.content["summary_graph"]).is_file()
+
+    def test_GET_summary_evolution_graph_returns_fail_response_code(
+        self, api_client: APIClient
+    ):
+        # Define test data.
+        full_url = self.url_root + "evolution-graph/"
+        self._get_evolution_test_data(api_client)
+        # Run test
+        set_user_auth_token(api_client, "Palpatine")
+        response = api_client.get(full_url)
+
+        # Verify final expectations.
+        assert response.status_code == 417
+        assert isinstance(response.data, dict)
+        assert (
+            response.data["reason"] == "The graph generation failed during execution."
+        )
+        # The file should still exist, just has not be 'validated'.
+        assert "media/evolution_summary.png" in response.data["summary_graph"]
 
 
 @django_postgresql_db
