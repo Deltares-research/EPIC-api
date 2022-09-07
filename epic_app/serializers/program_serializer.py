@@ -14,6 +14,8 @@ class ProgramSerializer(serializers.ModelSerializer):
     Serializer for 'Program'
     """
 
+    references = ProgramReferenceSerializer(many=True)
+
     class Meta:
         """
         Overriden meta class for serializing purposes.
@@ -36,6 +38,8 @@ class SimpleProgramSerializer(serializers.ModelSerializer):
     """
     Serializer for 'Program' without embedded questions.
     """
+
+    references = ProgramReferenceSerializer(many=True)
 
     class Meta:
         """
