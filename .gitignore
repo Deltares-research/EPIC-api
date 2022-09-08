@@ -4,6 +4,7 @@
 .pg_service.conf
 db.sqlite3
 site/
+local_files/
 # Cached files
 __pycache__
 .pytest_cache

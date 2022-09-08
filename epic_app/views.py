@@ -1,10 +1,9 @@
 # Create your views here.
 import io
 from pathlib import Path
-from typing import Any, List, Type, Union
+from typing import List, Type, Union
 
 from django.contrib.auth.models import User
-from django.core.files import File
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.http import FileResponse, HttpResponseForbidden
@@ -15,6 +14,9 @@ from rest_framework.response import Response
 
 from epic_app import epic_permissions
 from epic_app import serializers as epic_serializer
+from epic_app.exporters.summary_evolution_csv_exporter import SummaryEvolutionCsvFile
+from epic_app.externals import EramVisualsWrapper
+from epic_app.externals.external_wrapper_base import ExternalWrapperStatusType
 from epic_app.models.epic_answers import Answer
 from epic_app.models.epic_questions import (
     EvolutionQuestion,
@@ -27,6 +29,7 @@ from epic_app.models.epic_user import EpicOrganization, EpicUser
 from epic_app.models.models import Agency, Area, Group, Program
 from epic_app.serializers.report_pdf import EpicPdfReport
 from epic_app.utils import get_submodel_type, get_submodel_type_list
+from epic_app.view_controllers.externals_view_controller import ExternalsViewController
 
 
 class EpicUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -531,25 +534,37 @@ class SummaryViewSet(viewsets.ModelViewSet):
         url_name="evolution-graph",
     )
     def retrieve_evolution_summary_graph(self, request: Request) -> models.QuerySet:
-        _summary_name = "evolution_summary.png"
+        def _get_evolution_summary() -> dict:
+            return epic_serializer.SummaryEvolutionSerializer(
+                Program.objects.all(),
+                many=True,
+                context={
+                    "request": request,
+                    "organizations": EpicOrganization.objects.all(),
+                },
+            ).data
+
         _file_sys_storage = FileSystemStorage()
-        _graph_file_local = Path(_file_sys_storage.base_location) / _summary_name
-        _graph_file_url = _file_sys_storage.base_url + _summary_name
-
-        def call_r_script(image_path: Path) -> bool:
-            evolution_summary = self.retrieve_evolution_summary(request)
-            return False
-
-        # Call R-script
-        if call_r_script(_graph_file_local):
+        _evolution_summary = _get_evolution_summary()
+        _base_dir = Path(_file_sys_storage.base_location)
+        _csv_evolution_summary = SummaryEvolutionCsvFile.from_serialized_data(
+            _evolution_summary
+        ).export(_base_dir)
+        _graph_output_path = _base_dir / "evolution_summary.png"
+        eram_wrapper = EramVisualsWrapper(
+            input_file=_csv_evolution_summary, output_file=_graph_output_path
+        )
+        eram_wrapper.execute()
+        _graph_url = _file_sys_storage.base_url + _graph_output_path.name
+        if eram_wrapper.status.status_type == ExternalWrapperStatusType.SUCCEEDED:
             return Response(
-                dict(summary_graph=_graph_file_url),
+                dict(summary_graph=_graph_url),
                 status=status.HTTP_201_CREATED,
             )
         return Response(
             dict(
-                summary_graph=_graph_file_url,
-                reason="The graph generation failed during execution.",
+                summary_graph=_graph_url,
+                reason=f"The graph generation failed during execution: {eram_wrapper.status}",
             ),
             status=status.HTTP_417_EXPECTATION_FAILED,  # Expectation failed.
         )
