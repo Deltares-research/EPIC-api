@@ -7,11 +7,7 @@ from rest_framework import serializers
 from epic_app.exporters.summary_evolution_csv_exporter import SummaryEvolutionCsvFile
 from epic_app.externals import eram_visuals
 from epic_app.models.epic_answers import EvolutionAnswer, MultipleChoiceAnswer
-from epic_app.models.epic_questions import (
-    EvolutionChoiceType,
-    EvolutionQuestion,
-    LinkagesQuestion,
-)
+from epic_app.models.epic_questions import EvolutionChoiceType, LinkagesQuestion
 from epic_app.models.epic_user import EpicOrganization, EpicUser
 from epic_app.models.models import Program
 
@@ -111,79 +107,3 @@ class SummaryOrganizationEvolutionSerializer(serializers.ModelSerializer):
             "organization": instance.name,
             "evolution_summary": _answers_summary,
         }
-
-
-class SummaryEvolutionGraph:
-    _summary_name = "evolution_summary.png"
-
-    def __init__(self, evolution_summary: dict) -> None:
-        self._evolution_summary = evolution_summary
-        # Ideally we would have a class to have a better status, but at the moment
-        # and due to budget reasons I rather not invest the time on it.
-        self._is_valid = False
-        self._error_message = ""
-
-    @staticmethod
-    def execute_r_snippet(evo_csv_file: Path, evo_png_file: Path) -> None:
-        # Method based on the README.md from the repository:
-        # https://github.com/tanerumit/ERAMVisuals/
-        import rpy2.robjects as robjects
-        import rpy2.robjects.packages as rpackages
-
-        def install_required_packages(packages: List[str]):
-            utils = rpackages.importr("utils")
-            # select a mirror for R packages
-            utils.chooseCRANmirror(ind=1)  # select the first mirror in the list
-
-            # R vector of strings
-            from rpy2.robjects.vectors import StrVector
-
-            # Selectively install what needs to be install.
-            # We are fancy, just because we can.
-            names_to_install = [x for x in packages if not rpackages.isinstalled(x)]
-            if len(names_to_install) > 0:
-                utils.install_packages(StrVector(names_to_install))
-
-        def radial_plot_func() -> Any:
-            r_source = robjects.r["source"]
-            script_path = eram_visuals / "ERAMRadialPlot.R"
-            r_source(str(script_path))
-            return r_source
-
-        _required_packages = ("scales", "ggplot2", "dplyr", "readr", "stringr")
-        install_required_packages(_required_packages)
-        _radial_plot = radial_plot_func()
-        _readr = rpackages.importr("readr")
-        _ggplot2 = rpackages.importr("ggplot2")
-        _data = _readr.read_csv(str(evo_csv_file))
-        _radial_data = robjects.r["ERAMRadialPlot"](_data)
-
-        # Save png and pdf.
-        _ggplot2.ggsave(
-            filename=str(evo_png_file), plot=_radial_data, width=8, height=8
-        )
-        _ggplot2.ggsave(
-            filename=str(evo_png_file.with_suffix(".pdf")),
-            plot=_radial_data,
-            width=8,
-            height=8,
-        )
-
-    def generate(self, output_dir: Path) -> Path:
-        if not output_dir.is_dir():
-            output_dir.mkdir(parents=True)
-        _graph_path = output_dir / self._summary_name
-        try:
-            _csv_file = SummaryEvolutionCsvFile.from_serialized_data(
-                self._evolution_summary
-            ).export(output_dir)
-            self.execute_r_snippet(_csv_file, _graph_path)
-            self._is_valid = True
-        except Exception as exc_info:
-            self._is_valid = False
-            self._error_message = str(exc_info)
-        finally:
-            return _graph_path
-
-    def is_valid(self) -> bool:
-        return self._is_valid

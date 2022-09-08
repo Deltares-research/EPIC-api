@@ -15,6 +15,9 @@ from rest_framework.response import Response
 
 from epic_app import epic_permissions
 from epic_app import serializers as epic_serializer
+from epic_app.exporters.summary_evolution_csv_exporter import SummaryEvolutionCsvFile
+from epic_app.externals.eram_visuals_wrapper import EramVisualsWrapper
+from epic_app.externals.external_wrapper_base import ExternalWrapperStatusType
 from epic_app.models.epic_answers import Answer
 from epic_app.models.epic_questions import (
     EvolutionQuestion,
@@ -543,11 +546,18 @@ class SummaryViewSet(viewsets.ModelViewSet):
             ).data
 
         _file_sys_storage = FileSystemStorage()
-        _evolution_graph = SummaryEvolutionGraph(_get_evolution_summary())
-        _graph_file = _evolution_graph.generate(Path(_file_sys_storage.base_location))
-        _graph_url = _file_sys_storage.base_url + _graph_file.name
+        _evolution_summary = _get_evolution_summary()
+        _csv_evolution_summary = SummaryEvolutionCsvFile.from_serialized_data(
+            _evolution_summary
+        ).export(_file_sys_storage.base_location)
+        _graph_output_path = _file_sys_storage.base_location / "evolution_summary.png"
+        eram_wrapper = EramVisualsWrapper()
+        eram_wrapper.execute(
+            dict(input_file=_csv_evolution_summary, output_file=_graph_output_path)
+        )
+        _graph_url = _file_sys_storage.base_url + _graph_output_path.name
         # Call R-script
-        if _evolution_graph.is_valid():
+        if eram_wrapper.status.status_type == ExternalWrapperStatusType.SUCCEEDED:
             return Response(
                 dict(summary_graph=_graph_url),
                 status=status.HTTP_201_CREATED,
@@ -555,7 +565,7 @@ class SummaryViewSet(viewsets.ModelViewSet):
         return Response(
             dict(
                 summary_graph=_graph_url,
-                reason="The graph generation failed during execution.",
+                reason=f"The graph generation failed during execution: {eram_wrapper.status}",
             ),
             status=status.HTTP_417_EXPECTATION_FAILED,  # Expectation failed.
         )
