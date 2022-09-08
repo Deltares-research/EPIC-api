@@ -16,9 +16,11 @@ class EramVisualsWrapper(ExternalWrapperBase):
     _required_packages = ("scales", "ggplot2", "dplyr", "readr", "stringr")
     _status: ExternalWrapperStatus = None
 
-    def __init__(self) -> None:
+    def __init__(self, input_file: Path, output_file: Path) -> None:
         super().__init__()
         self._status = ExternalWrapperStatus()
+        self._input_file = input_file
+        self._output_file = output_file
 
     @property
     def status(self) -> ExternalWrapperStatus:
@@ -43,41 +45,52 @@ class EramVisualsWrapper(ExternalWrapperBase):
         script_path = eram_visuals_script
         r_source(str(script_path))
 
-    def _run_script(self, csv_input_file: Path, png_output_file: Path) -> None:
+    def _run_script(self) -> None:
+        # Method based on the README.md from the repository:
+        # https://github.com/tanerumit/ERAMVisuals/
         self._install_required_packages(self._required_packages)
         self._set_radial_plot_func()
         _readr = rpackages.importr("readr")
         _ggplot2 = rpackages.importr("ggplot2")
-        _data = _readr.read_csv(str(csv_input_file))
+        _data = _readr.read_csv(str(self._input_file))
         _radial_data = robjects.r["ERAMRadialPlot"](_data)
 
         # Save png and pdf.
         _ggplot2.ggsave(
-            filename=str(png_output_file), plot=_radial_data, width=8, height=8
+            filename=str(self._output_file), plot=_radial_data, width=8, height=8
         )
         _ggplot2.ggsave(
-            filename=str(png_output_file.with_suffix(".pdf")),
+            filename=str(self._output_file.with_suffix(".pdf")),
             plot=_radial_data,
             width=8,
             height=8,
         )
 
-    def execute(self, configuration_attrs: dict) -> None:
-        # Method based on the README.md from the repository:
-        # https://github.com/tanerumit/ERAMVisuals/
+    def _get_backup_output_file(self) -> Path:
+        return self._output_file.parent / (self._output_file.name + ".old")
+
+    def initialize(self) -> None:
         self._status.to_initialized()
-        _csv_input_file = configuration_attrs.get("input_file", None)
-        _png_output_file = configuration_attrs.get("output_file", None)
-        _old_file: Optional[Path] = None
+        _output_dir = self._output_file.parent
+        if not _output_dir.exists():
+            _output_dir.mkdir(parents=True)
+        if self._output_file.is_file():
+            self._output_file.rename(self._get_backup_output_file())
+
+    def finalize(self) -> None:
+        self._status.to_succeeded()
+
+    def finalize_with_error(self, error_mssg: str) -> None:
+        # Execution failed
+        self._status.to_failed(error_mssg)
+        _old_file = self._get_backup_output_file()
+        if _old_file and _old_file.exists():
+            _old_file.rename(self._output_file)
+
+    def execute(self) -> None:
         try:
-            if not _png_output_file.parent.exists():
-                _png_output_file.parent.mkdir(parents=True)
-            if _png_output_file.is_file():
-                _old_file = _png_output_file.rename(f"{_png_output_file}.old")
-            self._run_script(_csv_input_file, _png_output_file)
-            self._status.to_succeeded()
+            self.initialize()
+            self._run_script()
+            self.finalize()
         except Exception as e_info:
-            self._status.to_failed(str(e_info))
-            # Recover the previous .png in case the execution failed.
-            if _old_file and _old_file.is_file():
-                _old_file.rename(_old_file.with_suffix(""))
+            self.finalize_with_error(str(e_info))
