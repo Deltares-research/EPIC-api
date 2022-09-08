@@ -1,6 +1,5 @@
-from logging import config
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import List, Optional
 
 import rpy2.robjects as robjects
 import rpy2.robjects.packages as rpackages
@@ -9,7 +8,6 @@ from epic_app.externals import eram_visuals_script
 from epic_app.externals.external_wrapper_base import (
     ExternalWrapperBase,
     ExternalWrapperStatus,
-    ExternalWrapperStatusType,
 )
 
 
@@ -20,15 +18,13 @@ class EramVisualsWrapper(ExternalWrapperBase):
 
     def __init__(self) -> None:
         super().__init__()
-        _status = ExternalWrapperStatus()
-        _status.status_type = ExternalWrapperStatusType.READY
-        _status.status_info = ""
+        self._status = ExternalWrapperStatus()
 
     @property
     def status(self) -> ExternalWrapperStatus:
-        return super().status
+        return self._status
 
-    def _install_required_packages(packages: List[str]):
+    def _install_required_packages(self, packages: List[str]) -> None:
         utils = rpackages.importr("utils")
         # select a mirror for R packages
         utils.chooseCRANmirror(ind=1)  # select the first mirror in the list
@@ -42,7 +38,7 @@ class EramVisualsWrapper(ExternalWrapperBase):
         if len(names_to_install) > 0:
             utils.install_packages(StrVector(names_to_install))
 
-    def _set_radial_plot_func():
+    def _set_radial_plot_func(self) -> None:
         r_source = robjects.r["source"]
         script_path = eram_visuals_script
         r_source(str(script_path))
@@ -69,8 +65,7 @@ class EramVisualsWrapper(ExternalWrapperBase):
     def execute(self, configuration_attrs: dict) -> None:
         # Method based on the README.md from the repository:
         # https://github.com/tanerumit/ERAMVisuals/
-        self._status.status_info = ""
-        self._status.status_type = ExternalWrapperStatusType.INITIALIZED
+        self._status.to_initialized()
         _csv_input_file = configuration_attrs.get("input_file", None)
         _png_output_file = configuration_attrs.get("output_file", None)
         _old_file: Optional[Path] = None
@@ -80,9 +75,9 @@ class EramVisualsWrapper(ExternalWrapperBase):
             if _png_output_file.is_file():
                 _old_file = _png_output_file.rename(f"{_png_output_file}.old")
             self._run_script(_csv_input_file, _png_output_file)
-            self._status.status_type = ExternalWrapperStatusType.SUCCEEDED
+            self._status.to_succeeded()
         except Exception as e_info:
-            self._status.status_info = str(e_info)
-            self._status.status_type = ExternalWrapperStatusType.FAILED
+            self._status.to_failed(str(e_info))
             # Recover the previous .png in case the execution failed.
-            _old_file.rename(_old_file.with_suffix(""))
+            if _old_file and _old_file.is_file():
+                _old_file.rename(_old_file.with_suffix(""))

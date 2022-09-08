@@ -10,7 +10,6 @@ from epic_app.models.epic_questions import EvolutionChoiceType, EvolutionQuestio
 from epic_app.models.epic_user import EpicOrganization, EpicUser
 from epic_app.models.models import Program
 from epic_app.serializers.summary_serializer import (
-    SummaryEvolutionGraph,
     SummaryEvolutionSerializer,
     SummaryOrganizationEvolutionSerializer,
 )
@@ -102,23 +101,3 @@ class TestSummaryOrganizationEvolutionSerializer:
         )
         assert isinstance(represented_data["evolution_summary"], list)
         assert isinstance(represented_data["evolution_summary"][0], dict)
-
-
-@django_postgresql_db
-class TestSummaryEvolutionGraph:
-    def test_execute_r_snippet(self):
-        # 1. Define test data.
-        _csv_file = test_data_dir / "csv" / "evo_summary.csv"
-        assert _csv_file.is_file()
-        _png_file = test_data_dir / "test_evo_summary.png"
-        if _png_file.is_file():
-            _png_file.unlink()
-        if _png_file.with_suffix(".pdf").exists():
-            _png_file.unlink()
-
-        # 2. Run test.
-        SummaryEvolutionGraph.execute_r_snippet(_csv_file, _png_file)
-
-        # 3. Verify final expectations.
-        assert _png_file.exists()
-        assert _png_file.with_suffix(".pdf").exists()

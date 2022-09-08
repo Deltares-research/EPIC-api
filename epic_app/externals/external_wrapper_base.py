@@ -1,8 +1,8 @@
-import enum
 import typing
+from enum import Enum
 
 
-class ExternalWrapperStatusType(enum):
+class ExternalWrapperStatusType(Enum):
     READY = 0
     INITIALIZED = 1
     SUCCEEDED = 2
@@ -13,8 +13,27 @@ class ExternalWrapperStatus:
     status_type: ExternalWrapperStatusType = ExternalWrapperStatusType.READY
     status_info: str = ""
 
+    def __init__(self) -> None:
+        self.status_info = ""
+        self.status_type = ExternalWrapperStatusType.READY
+
     def __str__(self) -> str:
         return self.status_info
+
+    def _change_status(
+        self, new_status: ExternalWrapperStatusType, message: str
+    ) -> None:
+        self.status_type = new_status
+        self.status_info = message
+
+    def to_initialized(self, message: str = "") -> None:
+        self._change_status(ExternalWrapperStatusType.INITIALIZED, message)
+
+    def to_succeeded(self, message: str = "") -> None:
+        self._change_status(ExternalWrapperStatusType.SUCCEEDED, message)
+
+    def to_failed(self, message: str) -> None:
+        self._change_status(ExternalWrapperStatusType.FAILED, message)
 
 
 class ExternalWrapperBase(typing.Protocol):

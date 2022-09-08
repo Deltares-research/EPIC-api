@@ -1148,29 +1148,6 @@ class TestSummaryViewSet:
         assert isinstance(response.content, dict)
         assert Path(response.content["summary_graph"]).is_file()
 
-    @pytest.mark.skip(
-        reason="R execution is implemented, this test should not be triggered."
-    )
-    def test_GET_summary_evolution_graph_returns_fail_response_code(
-        self, api_client: APIClient
-    ):
-        # Define test data.
-        full_url = self.url_root + "evolution-graph/"
-        self._get_evolution_test_data(api_client)
-        # Run test
-        set_user_auth_token(api_client, "Palpatine")
-        response = api_client.get(full_url)
-
-        # Verify final expectations.
-        assert response.status_code == 417
-        assert isinstance(response.data, dict)
-        assert (
-            response.data["reason"] == "The graph generation failed during execution."
-        )
-        # The file should still exist, just has not be 'validated'.
-        assert "media/evolution_summary.png" in response.data["summary_graph"]
-
-
 @django_postgresql_db
 class TestApiDocumentation:
     url_root = "/api/docs/"

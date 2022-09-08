@@ -29,7 +29,6 @@ from epic_app.models.epic_questions import (
 from epic_app.models.epic_user import EpicOrganization, EpicUser
 from epic_app.models.models import Agency, Area, Group, Program
 from epic_app.serializers.report_pdf import EpicPdfReport
-from epic_app.serializers.summary_serializer import SummaryEvolutionGraph
 from epic_app.utils import get_submodel_type, get_submodel_type_list
 
 
@@ -547,10 +546,11 @@ class SummaryViewSet(viewsets.ModelViewSet):
 
         _file_sys_storage = FileSystemStorage()
         _evolution_summary = _get_evolution_summary()
+        _base_dir = Path(_file_sys_storage.base_location)
         _csv_evolution_summary = SummaryEvolutionCsvFile.from_serialized_data(
             _evolution_summary
-        ).export(_file_sys_storage.base_location)
-        _graph_output_path = _file_sys_storage.base_location / "evolution_summary.png"
+        ).export(_base_dir)
+        _graph_output_path = _base_dir / "evolution_summary.png"
         eram_wrapper = EramVisualsWrapper()
         eram_wrapper.execute(
             dict(input_file=_csv_evolution_summary, output_file=_graph_output_path)
