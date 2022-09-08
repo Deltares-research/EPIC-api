@@ -1,10 +1,9 @@
 # Create your views here.
 import io
 from pathlib import Path
-from typing import Any, List, Type, Union
+from typing import List, Type, Union
 
 from django.contrib.auth.models import User
-from django.core.files import File
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.http import FileResponse, HttpResponseForbidden
@@ -30,6 +29,7 @@ from epic_app.models.epic_user import EpicOrganization, EpicUser
 from epic_app.models.models import Agency, Area, Group, Program
 from epic_app.serializers.report_pdf import EpicPdfReport
 from epic_app.utils import get_submodel_type, get_submodel_type_list
+from epic_app.view_controllers.externals_view_controller import ExternalsViewController
 
 
 class EpicUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -551,12 +551,11 @@ class SummaryViewSet(viewsets.ModelViewSet):
             _evolution_summary
         ).export(_base_dir)
         _graph_output_path = _base_dir / "evolution_summary.png"
-        eram_wrapper = EramVisualsWrapper()
-        eram_wrapper.execute(
-            dict(input_file=_csv_evolution_summary, output_file=_graph_output_path)
+        eram_wrapper = EramVisualsWrapper(
+            input_file=_csv_evolution_summary, output_file=_graph_output_path
         )
+        eram_wrapper.execute()
         _graph_url = _file_sys_storage.base_url + _graph_output_path.name
-        # Call R-script
         if eram_wrapper.status.status_type == ExternalWrapperStatusType.SUCCEEDED:
             return Response(
                 dict(summary_graph=_graph_url),
