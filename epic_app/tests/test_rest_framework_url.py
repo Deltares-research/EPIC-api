@@ -1,5 +1,6 @@
 import json
 import random
+from asyncio import subprocess
 from pathlib import Path
 from statistics import mean
 from typing import Callable, List, Optional, Type
@@ -1081,26 +1082,33 @@ class TestSummaryViewSet:
 
         expected_org_data = []
         for e_org in EpicOrganization.objects.all():
-            expected_evo_summary = []
-            for l_question in EvolutionQuestion.objects.all():
-                q_sel_choices = []
+            expected_program_avg = []
+            for p_program in Program.objects.all():
+                program_avg = []
                 for e_user in e_org.organization_users.all():
-                    q_sel_choices.append(set_evolution_values(l_question, e_user))
-                sel_avg = min(
-                    round(mean(q_sel_choices), 2), len(EvolutionChoiceType.as_list())
+                    _answers = [
+                        set_evolution_values(evo_q, e_user)
+                        for evo_q in EvolutionQuestion.objects.filter(program=p_program)
+                    ]
+                    if not _answers:
+                        program_avg.append(0)
+                    else:
+                        program_avg.append(mean(_answers))
+                expected_program_avg.append(
+                    {
+                        "id": p_program.pk,
+                        "area": p_program.group.area.name,
+                        "group": p_program.group.name,
+                        "program": p_program.name,
+                        "average": round(mean(program_avg), 2),
+                    }
                 )
-                expected_evo_summary.append(
-                    dict(
-                        id=l_question.pk,
-                        title=l_question.title,
-                        average=sel_avg,
-                    )
-                )
+
             expected_org_data.append(
                 dict(
                     id=e_org.pk,
                     organization=e_org.name,
-                    evolution_questions=expected_evo_summary,
+                    evolution_summary=expected_program_avg,
                 )
             )
 
@@ -1123,7 +1131,6 @@ class TestSummaryViewSet:
             for key, expected_value in _expected_data[idx].items():
                 assert evolution_data[key] == expected_value
 
-    @pytest.mark.skip(reason="R execution not yet implemented.")
     def test_GET_summary_evolution_graph_returns_response_code(
         self, api_client: APIClient
     ):
@@ -1140,26 +1147,6 @@ class TestSummaryViewSet:
         assert response.status_code == 201
         assert isinstance(response.content, dict)
         assert Path(response.content["summary_graph"]).is_file()
-
-    def test_GET_summary_evolution_graph_returns_fail_response_code(
-        self, api_client: APIClient
-    ):
-        # Define test data.
-        full_url = self.url_root + "evolution-graph/"
-        self._get_evolution_test_data(api_client)
-        # Run test
-        set_user_auth_token(api_client, "Palpatine")
-        response = api_client.get(full_url)
-
-        # Verify final expectations.
-        assert response.status_code == 417
-        assert isinstance(response.data, dict)
-        assert (
-            response.data["reason"] == "The graph generation failed during execution."
-        )
-        # The file should still exist, just has not be 'validated'.
-        assert "media/evolution_summary.png" in response.data["summary_graph"]
-
 
 @django_postgresql_db
 class TestApiDocumentation:

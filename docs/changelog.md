@@ -1,3 +1,11 @@
+## v1.4.0 (2022-09-08)
+
+### Feat
+
+- **summary_serializer.py**: Added logic to execute the r snippet and tests to validate its correct functioning
+- Corrected summaryEvolutionSerializer as the average should be average of program evo questions for a user, then for its organization, then for the whole set of organizations
+- Added exporter for serialized evolution data into CSV
+
 ## v1.3.0 (2022-09-07)
 
 ### Feat
