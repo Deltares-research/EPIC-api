@@ -5,7 +5,6 @@ from typing import Any, List
 from rest_framework import serializers
 
 from epic_app.exporters.summary_evolution_csv_exporter import SummaryEvolutionCsvFile
-from epic_app.externals import eram_visuals
 from epic_app.models.epic_answers import EvolutionAnswer, MultipleChoiceAnswer
 from epic_app.models.epic_questions import EvolutionChoiceType, LinkagesQuestion
 from epic_app.models.epic_user import EpicOrganization, EpicUser

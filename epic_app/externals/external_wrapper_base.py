@@ -20,7 +20,7 @@ class ExternalWrapperStatus:
     def __str__(self) -> str:
         _info = {
             ExternalWrapperStatusType.READY: "Ready",
-            ExternalWrapperStatusType.INITIALIZED: "Ready",
+            ExternalWrapperStatusType.INITIALIZED: "Initialized",
             ExternalWrapperStatusType.SUCCEEDED: "Succeeded",
             ExternalWrapperStatusType.FAILED: f"Failed: {self.status_info}",
         }
@@ -31,6 +31,9 @@ class ExternalWrapperStatus:
     ) -> None:
         self.status_type = new_status
         self.status_info = message
+
+    def to_ready(self, message: str = "") -> None:
+        self._change_status(ExternalWrapperStatusType.READY, message)
 
     def to_initialized(self, message: str = "") -> None:
         self._change_status(ExternalWrapperStatusType.INITIALIZED, message)
