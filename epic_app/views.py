@@ -29,7 +29,6 @@ from epic_app.models.epic_user import EpicOrganization, EpicUser
 from epic_app.models.models import Agency, Area, Group, Program
 from epic_app.serializers.report_pdf import EpicPdfReport
 from epic_app.utils import get_submodel_type, get_submodel_type_list
-from epic_app.view_controllers.externals_view_controller import ExternalsViewController
 
 
 class EpicUserViewSet(viewsets.ReadOnlyModelViewSet):
