@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import rpy2.robjects as robjects
 import rpy2.robjects.packages as rpackages
 
-from epic_app.externals import eram_visuals_script
+from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.external_wrapper_base import (
     ExternalWrapperBase,
     ExternalWrapperStatus,

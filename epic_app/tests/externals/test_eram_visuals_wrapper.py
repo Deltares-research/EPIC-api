@@ -1,6 +1,4 @@
-from pathlib import Path
-
-from epic_app.externals.eram_visuals_wrapper import EramVisualsWrapper
+from epic_app.externals.ERAMVisuals.eram_visuals_wrapper import EramVisualsWrapper
 from epic_app.externals.external_wrapper_base import ExternalWrapperStatusType
 from epic_app.tests import test_data_dir
 
