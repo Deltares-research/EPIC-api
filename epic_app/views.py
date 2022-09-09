@@ -1,17 +1,22 @@
 # Create your views here.
 import io
+from pathlib import Path
 from typing import List, Type, Union
 
 from django.contrib.auth.models import User
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.http import FileResponse, HttpResponseForbidden
-from rest_framework import permissions, serializers, viewsets
+from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from epic_app import epic_permissions
 from epic_app import serializers as epic_serializer
+from epic_app.exporters.summary_evolution_csv_exporter import SummaryEvolutionCsvFile
+from epic_app.externals import EramVisualsWrapper
+from epic_app.externals.external_wrapper_base import ExternalWrapperStatusType
 from epic_app.models.epic_answers import Answer
 from epic_app.models.epic_questions import (
     EvolutionQuestion,
@@ -275,7 +280,7 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
 class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Question.objects.all()
     serializer_class = epic_serializer.QuestionSerializer
-    permissiion_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [permissions.DjangoModelPermissions]
 
     @staticmethod
     def _get_related_answer_type(question_pk: str) -> Type[Answer]:
@@ -445,3 +450,122 @@ class AnswerViewSet(viewsets.ModelViewSet):
             epic_serializer.AnswerSerializer.get_concrete_serializer(a_subtype)
         )
         return super().create(request, *args, **kwargs)
+
+
+class SummaryViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = epic_serializer.QuestionSerializer
+
+    def get_permissions(self):
+        """
+        `Answer` can only be created, updated or deleted when the authorized user is self.
+
+        Returns:
+            List[permissions.BasePermission]: List of permissions for the request being done.
+        """
+        if not self.request.data.get("user", None) and getattr(
+            self.request.user, "epicuser", False
+        ):
+            self.request.data["user"] = self.request.user.epicuser.id
+        if self.request.method in ["DELETE", "PUT", "PATCH"]:
+            return [epic_permissions.IsInstanceOwner()]
+        return [permissions.IsAuthenticated()]
+
+    @action(methods=["GET"], detail=False, url_path="linkages", url_name="linkages")
+    def retrieve_linkages_summary(self, request: Request) -> models.QuerySet:
+        """
+        Retrieves the `linkages` summary.
+        ASSUMPTION: The request is done with an `EpicUser`.
+
+        Args:
+            request (Request): Request from the client.
+        """
+
+        def _filter_queryset() -> Union[models.QuerySet, List[EpicUser]]:
+            if bool(request.user.is_staff or request.user.is_superuser):
+                return EpicUser.objects.all()
+            else:
+                epic_org = request.user.epicuser.organization
+                return epic_org.organization_users
+
+        r_serializer = epic_serializer.SummaryLinkagesSerializer(
+            LinkagesQuestion.objects.all(),
+            many=True,
+            context={
+                "request": request,
+                "users": _filter_queryset(),
+            },
+        )
+        return Response(r_serializer.data)
+
+    @action(methods=["GET"], detail=False, url_path="evolution", url_name="evolution")
+    def retrieve_evolution_summary(self, request: Request) -> models.QuerySet:
+        """
+        Retrieves the `evolution` summary.
+        ASSUMPTION: The request is done with an `EpicUser`.
+
+        Args:
+            request (Request): Request from the client.
+            pk (str, optional): `Answer` id. Defaults to None.
+        """
+        # For now we do it for all organizations regardless of the user making the request.
+        def _filter_queryset() -> Union[models.QuerySet, List[EpicUser]]:
+            if bool(request.user.is_staff or request.user.is_superuser):
+                return EpicOrganization.objects.all()
+            else:
+                return EpicOrganization.objects.filter(
+                    id=request.user.epicuser.organization_id
+                )
+
+        r_serializer = epic_serializer.SummaryOrganizationEvolutionSerializer(
+            EpicOrganization.objects.all(),
+            many=True,
+            context={
+                "request": request,
+            },
+        )
+        return Response(r_serializer.data)
+
+    @action(
+        methods=["GET"],
+        detail=False,
+        url_path="evolution-graph",
+        url_name="evolution-graph",
+    )
+    def retrieve_evolution_summary_graph(self, request: Request) -> models.QuerySet:
+        def _get_evolution_summary() -> dict:
+            return epic_serializer.SummaryEvolutionSerializer(
+                Program.objects.all(),
+                many=True,
+                context={
+                    "request": request,
+                    "organizations": EpicOrganization.objects.all(),
+                },
+            ).data
+
+        _file_sys_storage = FileSystemStorage()
+        _evolution_summary = _get_evolution_summary()
+        _base_dir = Path(_file_sys_storage.base_location)
+        _csv_evolution_summary = SummaryEvolutionCsvFile.from_serialized_data(
+            _evolution_summary
+        ).export(_base_dir)
+        _graph_output_path = _base_dir / "evolution_summary.png"
+        eram_wrapper = EramVisualsWrapper(
+            input_file=_csv_evolution_summary, output_file=_graph_output_path
+        )
+        eram_wrapper.execute()
+        _root_url = f"http://{request.get_host()}"
+        _graph_url = _root_url + _file_sys_storage.base_url + _graph_output_path.name
+        if eram_wrapper.status.status_type == ExternalWrapperStatusType.SUCCEEDED:
+            return Response(
+                dict(summary_graph=_graph_url, summary_data=_evolution_summary),
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            dict(
+                summary_graph=_graph_url,
+                summary_data=_evolution_summary,
+                reason=f"The graph generation failed during execution: {eram_wrapper.status}",
+            ),
+            status=status.HTTP_417_EXPECTATION_FAILED,  # Expectation failed.
+        )

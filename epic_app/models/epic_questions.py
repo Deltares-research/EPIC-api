@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 from django.db import IntegrityError, models
 from django.utils.translation import gettext_lazy as _
 
@@ -50,6 +52,23 @@ class EvolutionChoiceType(models.TextChoices):
     ENGAGED = "ENGAGED", _("Engaged")
     CAPABLE = "CAPABLE", _("Capable")
     EFFECTIVE = "EFFECTIVE", _("Effective")
+
+    @staticmethod
+    def as_list() -> List[str]:
+        return [
+            EvolutionChoiceType.NASCENT,
+            EvolutionChoiceType.ENGAGED,
+            EvolutionChoiceType.CAPABLE,
+            EvolutionChoiceType.EFFECTIVE,
+        ]
+
+    @staticmethod
+    def to_int(evolution_answer: EvolutionChoiceType) -> int:
+        return EvolutionChoiceType.as_list().index(evolution_answer)
+
+    @staticmethod
+    def from_int(answer_int: int) -> EvolutionChoiceType:
+        return EvolutionChoiceType.as_list()[answer_int]
 
 
 class EvolutionQuestion(Question):

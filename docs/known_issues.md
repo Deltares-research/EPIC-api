@@ -7,6 +7,8 @@ CentOs has proven to have several issues during installation. Mostly related to 
 ### CentOs exports
 It might be possible that each time you log in CentOs you are required to export (again) all the aliases you did during installation or deployment. In addition, this might also extend to the postgress `PGSERVICEFILE`, as a summary these are the following exports you should do 'every time'. 
 ```bash
+export LD_LIBRARY_PATH="/usr/local/lib/"
+PATH=$PATH:/usr/local/bin
 export PATH=$PATH:/usr/pgsql-11/bin:$PATH
 alias python3="/usr/local/bin/python3.9"
 export PATH="/root/.local/bin:$PATH"
