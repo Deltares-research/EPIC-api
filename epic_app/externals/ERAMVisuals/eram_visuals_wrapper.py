@@ -99,11 +99,15 @@ class EramVisualsWrapper(ExternalWrapperBase):
 
     def _finalize_backup_file(self, failed: bool) -> None:
         def apply_backup(from_file: Path, to_file: Path) -> None:
+            if failed:
+                # Then we need to bring back the backup as a file.
+                if to_file.exists():
+                    # Remove the 'possibly' generated new file.
+                    to_file.unlink()
+                # Rename the backup to be the source file.
+                from_file.rename(to_file)
+            # Remove the backup file and leave only the 'real one'.
             if from_file.exists():
-                if failed:
-                    if to_file.exists():
-                        to_file.unlink()
-                    from_file.rename(to_file)
                 from_file.unlink()
 
         apply_backup(self._get_backup_output_file(), self._output_file)
