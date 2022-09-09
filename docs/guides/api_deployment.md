@@ -158,6 +158,12 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 
+    location ^~ /media/ {
+        proxy_pass http://127.0.0.1:8000/media/;
+        proxy_set_header Host      $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
     location ^~ /admin/ {
         proxy_pass http://127.0.0.1:8000/admin/;
         proxy_set_header Host      $host;
