@@ -1,9 +1,6 @@
 from pathlib import Path
 from typing import List
 
-import rpy2.robjects as robjects
-import rpy2.robjects.packages as rpackages
-
 from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.external_wrapper_base import (
     ExternalWrapperBase,
@@ -27,6 +24,8 @@ class EramVisualsWrapper(ExternalWrapperBase):
         return self._status
 
     def _install_required_packages(self, packages: List[str]) -> None:
+        import rpy2.robjects.packages as rpackages
+
         utils = rpackages.importr("utils")
         # select a mirror for R packages
         utils.chooseCRANmirror(ind=1)  # select the first mirror in the list
@@ -41,11 +40,16 @@ class EramVisualsWrapper(ExternalWrapperBase):
             utils.install_packages(StrVector(names_to_install))
 
     def _set_radial_plot_func(self) -> None:
+        import rpy2.robjects as robjects
+
         r_source = robjects.r["source"]
         script_path = eram_visuals_script
         r_source(str(script_path))
 
     def _run_script(self) -> None:
+        import rpy2.robjects as robjects
+        import rpy2.robjects.packages as rpackages
+
         # Method based on the README.md from the repository:
         # https://github.com/tanerumit/ERAMVisuals/
         self._install_required_packages(self._required_packages)

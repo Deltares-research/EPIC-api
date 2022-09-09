@@ -554,7 +554,8 @@ class SummaryViewSet(viewsets.ModelViewSet):
             input_file=_csv_evolution_summary, output_file=_graph_output_path
         )
         eram_wrapper.execute()
-        _graph_url = _file_sys_storage.base_url + _graph_output_path.name
+        _root_url = request.get_host()
+        _graph_url = _root_url + _file_sys_storage.base_url + _graph_output_path.name
         if eram_wrapper.status.status_type == ExternalWrapperStatusType.SUCCEEDED:
             return Response(
                 dict(summary_graph=_graph_url),
