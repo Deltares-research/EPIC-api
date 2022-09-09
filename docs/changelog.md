@@ -1,3 +1,9 @@
+## v1.5.0 (2022-09-09)
+
+### Feat
+
+- Exposed the media folder so the generated evolution summary resources can be reached
+
 ## v1.4.1 (2022-09-08)
 
 ### Fix
