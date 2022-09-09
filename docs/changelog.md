@@ -1,3 +1,13 @@
+## v1.5.1 (2022-09-09)
+
+### Fix
+
+- **eram_visuals_wrapper.py**: Rename file only if it actually exists (duh)
+- allow 'missing_ok' to silence filenotfounderror while unlinking files
+- **eram_visuals_wrapper.py**: Replacement of backup when required was not happening correctly
+- Replaced the use of the statistics mean library as its giving issues in the server
+- Made the mean calculation based on explicit lists
+
 ## v1.5.0 (2022-09-09)
 
 ### Feat
