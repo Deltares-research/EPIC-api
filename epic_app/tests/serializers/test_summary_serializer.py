@@ -1,4 +1,5 @@
 import random
+from itertools import count
 from statistics import mean
 
 import pytest
@@ -109,6 +110,52 @@ class TestSummaryEvolutionSerializer:
             "average": 0,
         }
 
+    def test_summary_evolution_list(self):
+        # 1. Define test data and expectations.
+        # 2. Run test
+        represented_data = SummaryEvolutionSerializer(
+            Program.objects.all(), many=True, context=serializer_context
+        ).data
+
+        # 3. Verify final expectations.
+        assert represented_data
+        assert len(represented_data) == Program.objects.count()
+        for json_data in represented_data:
+            assert sorted(json_data.keys()) == sorted(
+                ["id", "area", "group", "program", "average"]
+            )
+            _program = Program.objects.get(pk=json_data["id"])
+            assert _program.group.area.name == json_data["area"]
+            assert _program.group.name == json_data["group"]
+            assert _program.name == json_data["program"]
+            assert isinstance(json_data["average"], float) or isinstance(
+                json_data["average"], int
+            )
+
+    def test_summary_evolution_list_with_no_answers(self):
+        # 1. Define test data and expectations.
+        test_p: Program = EvolutionQuestion.objects.all().first().program
+        # Remove all answers for the given program
+        EvolutionAnswer.objects.filter(question__in=test_p.questions.all()).delete()
+
+        # 2. Run test
+        represented_data = SummaryEvolutionSerializer(
+            Program.objects.all(), many=True, context=serializer_context
+        ).data
+
+        # 3. Verify final expectations.
+        assert represented_data
+        assert len(represented_data) == Program.objects.count()
+        for json_data in represented_data:
+            assert sorted(json_data.keys()) == sorted(
+                ["id", "area", "group", "program", "average"]
+            )
+            _program = Program.objects.get(pk=json_data["id"])
+            assert _program.group.area.name == json_data["area"]
+            assert _program.group.name == json_data["group"]
+            assert _program.name == json_data["program"]
+            assert json_data["average"] == 0
+
 
 @django_postgresql_db
 class TestSummaryOrganizationEvolutionSerializer:
@@ -119,17 +166,25 @@ class TestSummaryOrganizationEvolutionSerializer:
         assert set(represented_data.keys()) == set(
             ["id", "organization", "evolution_summary"]
         )
-        assert isinstance(represented_data["evolution_summary"], list)
-        assert isinstance(represented_data["evolution_summary"][0], dict)
+        _evo_summary = represented_data["evolution_summary"]
+        assert isinstance(_evo_summary, list)
+        assert isinstance(_evo_summary[0], dict)
+        assert len(_evo_summary) == Program.objects.count()
 
     def test_summary_organization_evolution_with_no_answers_to_representation(self):
+        # Given Remove all answers for the given program
+        EvolutionAnswer.objects.all().delete()
+
+        # When: Run test
         represented_data = SummaryOrganizationEvolutionSerializer(
             context=serializer_context
         ).to_representation(EpicOrganization.objects.all().first())
-        # Remove all answers for the given program
-        EvolutionAnswer.objects.all().delete()
+
+        # Then: Verify final expectations
         assert set(represented_data.keys()) == set(
             ["id", "organization", "evolution_summary"]
         )
-        assert isinstance(represented_data["evolution_summary"], list)
-        assert isinstance(represented_data["evolution_summary"][0], dict)
+        _evo_summary = represented_data["evolution_summary"]
+        assert isinstance(_evo_summary, list)
+        assert isinstance(_evo_summary[0], dict)
+        assert len(_evo_summary) == Program.objects.count()
