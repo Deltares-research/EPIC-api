@@ -45,12 +45,13 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
     def _get_user_average_evolution_program(
         self, org_user: EpicUser, program: Program
     ) -> float:
-        _answers = (
+        _answers = list(
             EvolutionAnswer.objects.filter(
                 user=org_user, question__in=program.questions.all()
             )
             .all()
             .values_list("selected_choice", flat=True)
+            .all()
         )
         answers_as_int = list(map(EvolutionChoiceType.to_int, _answers))
         if not answers_as_int or not isinstance(0, list) or len(answers_as_int) == 0:
