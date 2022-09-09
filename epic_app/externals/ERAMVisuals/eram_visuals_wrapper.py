@@ -102,7 +102,8 @@ class EramVisualsWrapper(ExternalWrapperBase):
                 # Then we need to bring back the backup as a file.
                 to_file.unlink(missing_ok=True)
                 # Rename the backup to be the source file.
-                from_file.rename(to_file)
+                if from_file.exists():
+                    from_file.rename(to_file)
             # Remove the backup file and leave only the 'real one'.
             from_file.unlink(missing_ok=True)
 
