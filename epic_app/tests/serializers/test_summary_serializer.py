@@ -89,6 +89,26 @@ class TestSummaryEvolutionSerializer:
             "average": program_avg,
         }
 
+    def test_summary_evolution_with_no_answers_to_representation(self):
+        # 1. Define test data and expectations.
+        test_p: Program = EvolutionQuestion.objects.all().first().program
+        # Remove all answers for the given program
+        EvolutionAnswer.objects.filter(question__in=test_p.questions.all()).delete()
+
+        # 2. Run test
+        represented_data = SummaryEvolutionSerializer(
+            context=serializer_context
+        ).to_representation(test_p)
+
+        # 3. Verify final expectations.
+        assert represented_data == {
+            "id": test_p.pk,
+            "area": test_p.group.area.name,
+            "group": test_p.group.name,
+            "program": test_p.name,
+            "average": 0,
+        }
+
 
 @django_postgresql_db
 class TestSummaryOrganizationEvolutionSerializer:
@@ -96,6 +116,18 @@ class TestSummaryOrganizationEvolutionSerializer:
         represented_data = SummaryOrganizationEvolutionSerializer(
             context=serializer_context
         ).to_representation(EpicOrganization.objects.all().first())
+        assert set(represented_data.keys()) == set(
+            ["id", "organization", "evolution_summary"]
+        )
+        assert isinstance(represented_data["evolution_summary"], list)
+        assert isinstance(represented_data["evolution_summary"][0], dict)
+
+    def test_summary_organization_evolution_with_no_answers_to_representation(self):
+        represented_data = SummaryOrganizationEvolutionSerializer(
+            context=serializer_context
+        ).to_representation(EpicOrganization.objects.all().first())
+        # Remove all answers for the given program
+        EvolutionAnswer.objects.all().delete()
         assert set(represented_data.keys()) == set(
             ["id", "organization", "evolution_summary"]
         )
