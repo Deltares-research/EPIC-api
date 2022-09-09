@@ -53,7 +53,7 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
             .values_list("selected_choice", flat=True)
         )
         answers_as_int = list(map(EvolutionChoiceType.to_int, _answers))
-        if not answers_as_int:
+        if not answers_as_int or not isinstance(0, list) or len(answers_as_int) == 0:
             return 0
         return mean(answers_as_int)
 
