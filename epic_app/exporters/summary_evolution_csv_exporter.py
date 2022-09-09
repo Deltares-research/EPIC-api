@@ -14,7 +14,7 @@ class SummaryEvolutionCsvRow:
         new_row.group = serialized_data["area"][0]  # only show the first letter
         new_row.sub = serialized_data["group"]
         new_row.individual = serialized_data["program"]
-        new_row.value = serialized_data["average"]
+        new_row.value = str(serialized_data["average"]).replace(",", ".")
         return new_row
 
     @staticmethod
@@ -22,8 +22,7 @@ class SummaryEvolutionCsvRow:
         return "group, sub, individual, value"
 
     def to_string(self) -> str:
-        value_str = str(self.value).replace(",", ".")
-        return f"{self.group}, {self.sub}, {self.individual}, {value_str}"
+        return f"{self.group}, {self.sub}, {self.individual}, {self.value}"
 
 
 class SummaryEvolutionCsvFile:
@@ -54,7 +53,7 @@ class SummaryEvolutionCsvFile:
 
     def export(self, export_dir: Path) -> Path:
         if not export_dir.is_dir():
-            raise FileNotFoundError("No directory where to export the csv file.")
+            export_dir.mkdir(parents=True)
         _header = SummaryEvolutionCsvRow.get_headers()
         _rows = self._get_rows_as_str()
         export_file = export_dir / self._basename
