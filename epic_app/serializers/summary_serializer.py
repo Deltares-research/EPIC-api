@@ -1,10 +1,7 @@
-from pathlib import Path
-from statistics import mean
 from typing import Any, List
 
 from rest_framework import serializers
 
-from epic_app.exporters.summary_evolution_csv_exporter import SummaryEvolutionCsvFile
 from epic_app.models.epic_answers import EvolutionAnswer, MultipleChoiceAnswer
 from epic_app.models.epic_questions import EvolutionChoiceType, LinkagesQuestion
 from epic_app.models.epic_user import EpicOrganization, EpicUser
@@ -42,21 +39,19 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
         model = Program
         fields = "__all__"
 
+    def _get_average(self, list_items: List[Any]) -> float:
+        if not list_items:
+            return 0
+        return sum(list_items) / len(list_items)
+
     def _get_user_average_evolution_program(
         self, org_user: EpicUser, program: Program
     ) -> float:
-        _answers = list(
-            EvolutionAnswer.objects.filter(
-                user=org_user, question__in=program.questions.all()
-            )
-            .all()
-            .values_list("selected_choice", flat=True)
-            .all()
-        )
+        _answers = EvolutionAnswer.objects.filter(
+            user=org_user, question__in=program.questions.all()
+        ).values_list("selected_choice", flat=True)
         answers_as_int = list(map(EvolutionChoiceType.to_int, _answers))
-        if not answers_as_int or not isinstance(0, list) or len(answers_as_int) == 0:
-            return 0
-        return mean(answers_as_int)
+        return self._get_average(answers_as_int)
 
     def _get_organization_average_evolution_program(
         self, epic_org: EpicOrganization, program: Program
@@ -69,7 +64,7 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
             avg_list.append(
                 self._get_user_average_evolution_program(epic_user, program)
             )
-        return mean(avg_list)
+        return self._get_average(avg_list)
 
     def to_representation(self, instance: Program):
         _organizations = self.context["organizations"].all()
@@ -77,7 +72,7 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
             self._get_organization_average_evolution_program(epic_org, instance)
             for epic_org in list(_organizations)
         ]
-        _answers_summary = round(mean(_org_averages), 2)
+        _answers_summary = round(self._get_average(_org_averages), 2)
         return {
             "id": instance.pk,
             "area": instance.group.area.name,
