@@ -32,7 +32,7 @@ class TestEramVisualsWrapper:
 
         # 1. Define test data.
         _csv_file = test_data_dir / "csv" / "evo_summary.csv"
-        _png_file = test_data_dir / "test_evo_summary.png"
+        _png_file = test_data_dir / "test_failing_evo_summary.png"
 
         # 2. Run mocked up test
         _test_wrapper = MockEramVisualsWrapper(
@@ -44,3 +44,5 @@ class TestEramVisualsWrapper:
         assert _test_wrapper.status.status_type == ExternalWrapperStatusType.FAILED
         assert _test_wrapper.status.status_info == _exception_mssg
         assert str(_test_wrapper.status) == f"Failed: {_exception_mssg}"
+        assert not _png_file.exists()
+        assert not _png_file.with_suffix(".pdf").exists()

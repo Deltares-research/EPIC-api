@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, final
 
 from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.external_wrapper_base import (
@@ -73,23 +73,50 @@ class EramVisualsWrapper(ExternalWrapperBase):
     def _get_backup_output_file(self) -> Path:
         return self._output_file.parent / (self._output_file.name + ".old")
 
+    def _get_pdf_output_file(self) -> Path:
+        return self._output_file.with_suffix(".pdf")
+
+    def _get_backup_pdf_output_file(self) -> Path:
+        _pdf_file = self._get_pdf_output_file().name
+        return self._output_file.parent / (_pdf_file + ".old")
+
     def initialize(self) -> None:
         self._status.to_initialized()
         _output_dir = self._output_file.parent
         if not _output_dir.exists():
             _output_dir.mkdir(parents=True)
-        if self._output_file.is_file():
-            self._output_file.rename(self._get_backup_output_file())
+
+        def initialize_backup(from_file: Path, to_file: Path) -> None:
+            if to_file.exists():
+                to_file.unlink()
+            if from_file.is_file():
+                from_file.rename(to_file)
+
+        initialize_backup(self._output_file, self._get_backup_output_file())
+        initialize_backup(
+            self._get_pdf_output_file(), self._get_backup_pdf_output_file()
+        )
+
+    def _finalize_backup_file(self, failed: bool) -> None:
+        def apply_backup(from_file: Path, to_file: Path) -> None:
+            if from_file.exists():
+                if failed:
+                    if to_file.exists():
+                        to_file.unlink()
+                    from_file.rename(to_file)
+                from_file.unlink()
+
+        apply_backup(self._get_backup_output_file(), self._output_file)
+        apply_backup(self._get_backup_pdf_output_file(), self._get_pdf_output_file())
 
     def finalize(self) -> None:
         self._status.to_succeeded()
+        self._finalize_backup_file(failed=False)
 
     def finalize_with_error(self, error_mssg: str) -> None:
         # Execution failed
         self._status.to_failed(error_mssg)
-        _old_file = self._get_backup_output_file()
-        if _old_file and _old_file.exists():
-            _old_file.rename(self._output_file)
+        self._finalize_backup_file(failed=True)
 
     def execute(self) -> None:
         try:
