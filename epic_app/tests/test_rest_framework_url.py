@@ -1146,7 +1146,9 @@ class TestSummaryViewSet:
         # Verify final expectations.
         assert response.status_code == 201
         assert isinstance(response.content, dict)
-        assert Path(response.content["summary_graph"]).is_file()
+        assert ".png" in response.content["summary_graph"]
+        assert response.content["summary_data"]
+
 
 @django_postgresql_db
 class TestApiDocumentation:

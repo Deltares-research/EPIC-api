@@ -558,12 +558,13 @@ class SummaryViewSet(viewsets.ModelViewSet):
         _graph_url = _root_url + _file_sys_storage.base_url + _graph_output_path.name
         if eram_wrapper.status.status_type == ExternalWrapperStatusType.SUCCEEDED:
             return Response(
-                dict(summary_graph=_graph_url),
+                dict(summary_graph=_graph_url, summary_data=_evolution_summary),
                 status=status.HTTP_201_CREATED,
             )
         return Response(
             dict(
                 summary_graph=_graph_url,
+                summary_data=_evolution_summary,
                 reason=f"The graph generation failed during execution: {eram_wrapper.status}",
             ),
             status=status.HTTP_417_EXPECTATION_FAILED,  # Expectation failed.
