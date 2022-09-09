@@ -50,7 +50,9 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
         _answers = EvolutionAnswer.objects.filter(
             user=org_user, question__in=program.questions.all()
         ).values_list("selected_choice", flat=True)
-        answers_as_int = list(map(EvolutionChoiceType.to_int, _answers))
+        answers_as_int = []
+        for _ans in _answers:
+            answers_as_int.append(EvolutionChoiceType.to_int(_ans))
         return self._get_average(answers_as_int)
 
     def _get_organization_average_evolution_program(
