@@ -1,7 +1,8 @@
+import subprocess
 from pathlib import Path
-from typing import List, final
+from typing import List
 
-from epic_app.externals.ERAMVisuals import eram_visuals_script
+from epic_app.externals.ERAMVisuals import eram_main_script, eram_visuals_script
 from epic_app.externals.external_wrapper_base import (
     ExternalWrapperBase,
     ExternalWrapperStatus,
@@ -122,7 +123,11 @@ class EramVisualsWrapper(ExternalWrapperBase):
     def execute(self) -> None:
         try:
             self.initialize()
-            self._run_script()
+            assert eram_main_script.exists()
+            _r_exe = "Rscript"
+            _command_call = f"{_r_exe} --vanilla {eram_main_script} {self._input_file}"
+            _return_call = subprocess.call(_command_call, shell=True)
+            # self._run_script()
             self.finalize()
         except Exception as e_info:
             self.finalize_with_error(str(e_info))
