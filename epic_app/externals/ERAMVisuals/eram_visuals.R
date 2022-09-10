@@ -208,10 +208,11 @@ data <- readr::read_csv(args[[1]])
 
 # Generate radial plot based on the data
 p <- ERAMRadialPlot(data)
-png_file <- file.path(output_dir, "eram_visuals.png")
-pdf_file <- file.path(output_dir, "eram_visuals.pdf")
+
 # Save plot to png
+png_file <- file.path(output_dir, "eram_visuals.png")
 ggplot2::ggsave(filename = png_file, plot = p, width = 8, height = 8)
 
 # Save plot to pdf
+pdf_file <- file.path(output_dir, "eram_visuals.pdf")
 ggplot2::ggsave(filename = pdf_file, plot = p, width = 8, height = 8)

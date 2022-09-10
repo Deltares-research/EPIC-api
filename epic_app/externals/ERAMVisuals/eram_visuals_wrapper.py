@@ -1,115 +1,107 @@
+import platform
 import subprocess
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Type
 
-from epic_app.externals.ERAMVisuals import eram_main_script, eram_visuals_script
+from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.external_wrapper_base import (
+    ExternalRunner,
+    ExternalRunnerOutput,
     ExternalWrapperBase,
     ExternalWrapperStatus,
 )
+
+
+class EramVisualsOutput:
+    pdf_output: Optional[Path]
+    png_output: Optional[Path]
+    _base_output_name = "eram_visuals"
+
+    def __init__(self, output_dir: Path) -> ExternalRunnerOutput:
+        _base_name = output_dir / self._base_output_name
+        self.pdf_output = _base_name.with_suffix(".pdf")
+        self.png_output = _base_name.with_suffix(".png")
+
+
+class EramVisualsRunner(ExternalRunner):
+    def _get_windows_path(self) -> Path:
+        # TODO: It should be retrieving it from the env / sys variable
+        return Path("C:\\Program Files\\R\\R-4.2.1\\bin\\RScript.exe")
+
+    def _get_platform_runner(self) -> Path:
+        _system = platform.system()
+        _bin_path = None
+        if _system == "Windows":
+            _bin_path = self._get_windows_path()
+        elif _system == "Linux":
+            _bin_path = Path("/usr/lib64/R/")
+        else:
+            raise NotImplementedError(
+                f"ERAM Visuals not configured to run under {_system}"
+            )
+
+        if not _bin_path.exists():
+            raise FileNotFoundError(f"No RScript.exe found at {_bin_path}")
+        return _bin_path
+
+    def run(self, *args, **kwargs) -> None:
+        _command = [self._get_platform_runner()]
+        assert eram_visuals_script.exists()
+        _command.append(eram_visuals_script)
+        _command.extend(kwargs.values())
+        _return_call = subprocess.call(_command, shell=True)
+        if _return_call != 0:
+            raise ValueError("Execution failed.")
 
 
 class EramVisualsWrapper(ExternalWrapperBase):
 
     _required_packages = ("scales", "ggplot2", "dplyr", "readr", "stringr")
     _status: ExternalWrapperStatus = None
+    _output: EramVisualsOutput = None
 
-    def __init__(self, input_file: Path, output_file: Path) -> None:
+    def __init__(self, input_file: Path, output_dir: Path) -> None:
         super().__init__()
         self._status = ExternalWrapperStatus()
         self._input_file = input_file
-        self._output_file = output_file
+        self._output_dir = output_dir
+        self._output = EramVisualsOutput(output_dir)
 
     @property
     def status(self) -> ExternalWrapperStatus:
         return self._status
 
-    def _install_required_packages(self, packages: List[str]) -> None:
-        import rpy2.robjects.packages as rpackages
-
-        utils = rpackages.importr("utils")
-        # select a mirror for R packages
-        utils.chooseCRANmirror(ind=1)  # select the first mirror in the list
-
-        # R vector of strings
-        from rpy2.robjects.vectors import StrVector
-
-        # Selectively install what needs to be install.
-        # We are fancy, just because we can.
-        names_to_install = [x for x in packages if not rpackages.isinstalled(x)]
-        if len(names_to_install) > 0:
-            utils.install_packages(StrVector(names_to_install))
-
-    def _set_radial_plot_func(self) -> None:
-        import rpy2.robjects as robjects
-
-        r_source = robjects.r["source"]
-        script_path = eram_visuals_script
-        r_source(str(script_path))
-
-    def _run_script(self) -> None:
-        import rpy2.robjects as robjects
-        import rpy2.robjects.packages as rpackages
-
-        # Method based on the README.md from the repository:
-        # https://github.com/tanerumit/ERAMVisuals/
-        self._install_required_packages(self._required_packages)
-        self._set_radial_plot_func()
-        _readr = rpackages.importr("readr")
-        _ggplot2 = rpackages.importr("ggplot2")
-        _data = _readr.read_csv(str(self._input_file))
-        _radial_data = robjects.r["ERAMRadialPlot"](_data)
-
-        # Save png and pdf.
-        _ggplot2.ggsave(
-            filename=str(self._output_file), plot=_radial_data, width=8, height=8
-        )
-        _ggplot2.ggsave(
-            filename=str(self._output_file.with_suffix(".pdf")),
-            plot=_radial_data,
-            width=8,
-            height=8,
-        )
-
-    def _get_backup_output_file(self) -> Path:
-        return self._output_file.parent / (self._output_file.name + ".old")
-
-    def _get_pdf_output_file(self) -> Path:
-        return self._output_file.with_suffix(".pdf")
-
-    def _get_backup_pdf_output_file(self) -> Path:
-        _pdf_file = self._get_pdf_output_file().name
-        return self._output_file.parent / (_pdf_file + ".old")
+    def _get_backup_output_file(self, output_file: Path) -> Path:
+        return output_file.with_suffix(output_file.suffix + ".old")
 
     def initialize(self) -> None:
         self._status.to_initialized()
-        _output_dir = self._output_file.parent
-        if not _output_dir.exists():
-            _output_dir.mkdir(parents=True)
+        if not self._output_dir.exists():
+            self._output_dir.mkdir(parents=True)
 
-        def initialize_backup(from_file: Path, to_file: Path) -> None:
-            to_file.unlink(missing_ok=True)
+        def initialize_backup(from_file: Path) -> None:
+            _to_file = self._get_backup_output_file(from_file)
+            _to_file.unlink(missing_ok=True)
             if from_file.is_file():
-                from_file.rename(to_file)
+                from_file.rename(_to_file)
 
-        initialize_backup(self._output_file, self._get_backup_output_file())
-        initialize_backup(
-            self._get_pdf_output_file(), self._get_backup_pdf_output_file()
-        )
+        initialize_backup(self._output.png_output)
+        initialize_backup(self._output.pdf_output)
 
     def _finalize_backup_file(self, failed: bool) -> None:
-        def apply_backup(from_file: Path, to_file: Path) -> None:
+        def apply_backup(to_file: Path) -> None:
+            _from_file = self._get_backup_output_file(to_file)
             if failed:
                 # Then we need to bring back the backup as a file.
                 to_file.unlink(missing_ok=True)
                 # Rename the backup to be the source file.
-                if from_file.exists():
-                    from_file.rename(to_file)
+                if _from_file.exists():
+                    _from_file.rename(to_file)
             # Remove the backup file and leave only the 'real one'.
-            from_file.unlink(missing_ok=True)
+            _from_file.unlink(missing_ok=True)
 
-        apply_backup(self._get_backup_output_file(), self._output_file)
-        apply_backup(self._get_backup_pdf_output_file(), self._get_pdf_output_file())
+        apply_backup(self._output.png_output)
+        apply_backup(self._output.pdf_output)
 
     def finalize(self) -> None:
         self._status.to_succeeded()
@@ -120,14 +112,18 @@ class EramVisualsWrapper(ExternalWrapperBase):
         self._status.to_failed(error_mssg)
         self._finalize_backup_file(failed=True)
 
+    @property
+    def runner(self) -> ExternalRunner:
+        return EramVisualsRunner()
+
+    @property
+    def output(self) -> ExternalRunnerOutput:
+        return self._output
+
     def execute(self) -> None:
         try:
             self.initialize()
-            assert eram_main_script.exists()
-            _r_exe = "Rscript"
-            _command_call = f"{_r_exe} --vanilla {eram_main_script} {self._input_file}"
-            _return_call = subprocess.call(_command_call, shell=True)
-            # self._run_script()
+            self.runner.run(input_file=self._input_file, output_dir=self._output_dir)
             self.finalize()
         except Exception as e_info:
             self.finalize_with_error(str(e_info))

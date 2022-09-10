@@ -45,8 +45,25 @@ class ExternalWrapperStatus:
         self._change_status(ExternalWrapperStatusType.FAILED, message)
 
 
+class ExternalRunnerOutput(typing.Protocol):
+    pass
+
+
+class ExternalRunner(typing.Protocol):
+    def run(self, *args, **kwargs) -> None:
+        pass
+
+
 class ExternalWrapperBase(typing.Protocol):
     def execute(self, configuration_attrs: dict) -> None:
+        pass
+
+    @property
+    def output(self) -> ExternalRunnerOutput:
+        pass
+
+    @property
+    def runner(self) -> ExternalRunner:
         pass
 
     @property

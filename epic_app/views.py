@@ -549,21 +549,30 @@ class SummaryViewSet(viewsets.ModelViewSet):
         _csv_evolution_summary = SummaryEvolutionCsvFile.from_serialized_data(
             _evolution_summary
         ).export(_base_dir)
-        _graph_output_path = _base_dir / "evolution_summary.png"
         eram_wrapper = EramVisualsWrapper(
-            input_file=_csv_evolution_summary, output_file=_graph_output_path
+            input_file=_csv_evolution_summary, output_dir=_base_dir
         )
         eram_wrapper.execute()
         _root_url = f"http://{request.get_host()}"
-        _graph_url = _root_url + _file_sys_storage.base_url + _graph_output_path.name
+        _graph_url = (
+            _root_url + _file_sys_storage.base_url + eram_wrapper.output.png_output.name
+        )
+        _pdf_url = (
+            _root_url + _file_sys_storage.base_url + eram_wrapper.output.pdf_output.name
+        )
         if eram_wrapper.status.status_type == ExternalWrapperStatusType.SUCCEEDED:
             return Response(
-                dict(summary_graph=_graph_url, summary_data=_evolution_summary),
+                dict(
+                    summary_graph=_graph_url,
+                    summary_pdf=_pdf_url,
+                    summary_data=_evolution_summary,
+                ),
                 status=status.HTTP_201_CREATED,
             )
         return Response(
             dict(
                 summary_graph=_graph_url,
+                summary_pdf=_pdf_url,
                 summary_data=_evolution_summary,
                 reason=f"The graph generation failed during execution: {eram_wrapper.status}",
             ),
