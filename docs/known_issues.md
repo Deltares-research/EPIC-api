@@ -14,3 +14,7 @@ alias python3="/usr/local/bin/python3.9"
 export PATH="/root/.local/bin:$PATH"
 export PGSERVICEFILE=/var/www/EPIC-api/.pg_service.conf
 ```
+
+### ERAM Visuals
+Because of the ERAM Visuals being an R script, it is required to have an installation of R in your system to generate such visuals.
+In addition to the installation it is required to add in the system the environment variable "RSCRIPT" pointing to the executable of the Rscript (*important* this is not the R.exe, but the Rscript.exe in Windows).

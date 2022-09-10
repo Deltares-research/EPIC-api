@@ -93,6 +93,21 @@ python3 --version
 
 If the latest step does not return at least that value you may need to recompile and install python ensuring the libraries are correctly exported as described in previous steps.
 
+## Installing R
+* Update the machine packages:
+```bash
+sudo yum install epel-release
+```
+*  Install the 'R' Packages:
+```bash
+sudo yum install R
+```
+
+* Verify 'R' version:
+```bash
+R --version
+```
+
 ## Installing Poetry:
 
 * Install package under latest python3 library:
@@ -130,4 +145,7 @@ export PATH="/root/.local/bin:$PATH"
 * Python 3.9:
     * [Installing latest Python on CentOs](https://computingforgeeks.com/install-latest-python-on-centos-linux/)
     > It is also possible replacing the previous python3 version, moving the python 3.6 to a backup directory (python3.6.bak), this way the alias gets picked up always.
+* R:
+    * [How to in stall R on CentOs 7](https://linuxize.com/post/how-to-install-r-on-centos-7/)
+
 * (Extra) [Poetry official installer](https://python-poetry.org/docs/master/#installing-with-the-official-installer)
