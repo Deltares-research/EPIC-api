@@ -108,6 +108,12 @@ sudo yum install R
 R --version
 ```
 
+Don't forget to add these values into the system variables:
+```bash
+export PATH=$PATH:/usr/lib64/R/bin:$PATH
+export RSCRIPT="/usr/lib64/R/bin/Rscript/"
+```
+
 ## Installing Poetry:
 
 * Install package under latest python3 library:
