@@ -38,13 +38,22 @@ class EramVisualsRunner(ExternalRunner):
         return _rscript_path
 
     def run(self, *args, **kwargs) -> None:
-        _command = [self._get_platform_runner()]
+        _command = []
+        previous_exception = None
+        try:
+            _command.append(self._get_platform_runner())
+        except Exception as previous_exception:
+            # Just give it a try in case it was not found a sys environment variable.
+            _command.append("Rscript")
         assert eram_visuals_script.exists()
         _command.append(eram_visuals_script)
         _command.extend(kwargs.values())
+
         _return_call = subprocess.call(_command, shell=True)
         if _return_call != 0:
-            raise ValueError("Execution failed.")
+            if previous_exception:
+                raise previous_exception
+            raise ValueError(f"Execution failed with code {_return_call}")
 
 
 class EramVisualsWrapper(ExternalWrapperBase):
