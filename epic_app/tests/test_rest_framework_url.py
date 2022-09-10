@@ -1131,7 +1131,7 @@ class TestSummaryViewSet:
             for key, expected_value in _expected_data[idx].items():
                 assert evolution_data[key] == expected_value
 
-    @pytest.mark.skip(reason="R script does not support unmapped rows.")
+    # @pytest.mark.skip(reason="R script does not support unmapped rows.")
     def test_GET_summary_evolution_graph_returns_response_code(
         self, api_client: APIClient
     ):
@@ -1145,10 +1145,11 @@ class TestSummaryViewSet:
         response = api_client.get(full_url)
 
         # Verify final expectations.
+        assert isinstance(response.data, dict)
+        assert ".png" in response.data["summary_graph"]
+        assert ".pdf" in response.data["summary_pdf"]
+        assert response.data["summary_data"]
         assert response.status_code == 201
-        assert isinstance(response.content, dict)
-        assert ".png" in response.content["summary_graph"]
-        assert response.content["summary_data"]
 
 
 @django_postgresql_db

@@ -1,7 +1,7 @@
-import platform
 import subprocess
+from os import environ
 from pathlib import Path
-from typing import List, Optional, Type
+from typing import Optional
 
 from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.external_wrapper_base import (
@@ -24,25 +24,18 @@ class EramVisualsOutput:
 
 
 class EramVisualsRunner(ExternalRunner):
-    def _get_windows_path(self) -> Path:
-        # TODO: It should be retrieving it from the env / sys variable
-        return Path("C:\\Program Files\\R\\R-4.2.1\\bin\\RScript.exe")
-
     def _get_platform_runner(self) -> Path:
-        _system = platform.system()
-        _bin_path = None
-        if _system == "Windows":
-            _bin_path = self._get_windows_path()
-        elif _system == "Linux":
-            _bin_path = Path("/usr/lib64/R/")
-        else:
+        # NOTE: Requires installing R in your system and defining a system variable
+        # for the 'Rscript' executable.
+        _rscript_path = environ.get("RSCRIPT")
+        if not _rscript_path:
             raise NotImplementedError(
-                f"ERAM Visuals not configured to run under {_system}"
+                f"ERAM Visuals REQUIRES an environment variable pointing to the Rscript location"
             )
-
-        if not _bin_path.exists():
-            raise FileNotFoundError(f"No RScript.exe found at {_bin_path}")
-        return _bin_path
+        _rscript_path = Path(_rscript_path)
+        if not _rscript_path.exists():
+            raise FileNotFoundError(f"No RScript.exe found at {_rscript_path}")
+        return _rscript_path
 
     def run(self, *args, **kwargs) -> None:
         _command = [self._get_platform_runner()]
