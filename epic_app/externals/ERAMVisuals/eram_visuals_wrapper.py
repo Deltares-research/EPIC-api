@@ -1,7 +1,7 @@
 import subprocess
 from os import environ
 from pathlib import Path
-from typing import Optional, Type
+from typing import List, Optional, Type
 
 from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.external_wrapper_base import (
@@ -38,17 +38,23 @@ class EramVisualsRunner(ExternalRunner):
         return _rscript_path
 
     def run(self, *args, **kwargs) -> None:
+        def set_command_values(run_command: str) -> List[str]:
+            _rcommand = []
+            _rcommand.append(run_command)
+            _rcommand.append(eram_visuals_script)
+            _rcommand.extend(kwargs.values())
+            return _rcommand
+
         _command = []
         previous_exception = None
+        assert eram_visuals_script.exists()
+
         try:
-            _command.append(self._get_platform_runner())
+            _command = set_command_values(self._get_platform_runner())
         except Exception as previous_exception:
             # Just give it a try in case it was not found a sys environment variable.
-            _command.append("Rscript --verbose")
-        assert eram_visuals_script.exists()
-        _command.append(eram_visuals_script)
-        _command.extend(kwargs.values())
-
+            _command = set_command_values("Rscript --verbose")
+            _command = " ".join(map(str, _command))
         _return_call = subprocess.call(_command, shell=True)
         if _return_call != 0:
             if previous_exception:

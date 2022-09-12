@@ -65,3 +65,26 @@ class TestEramVisualsWrapper:
         assert _test_wrapper.output
         assert not _test_wrapper.output.pdf_output.exists()
         assert not _test_wrapper.output.png_output.exists()
+
+    def test_given_missing_r_script_tries_again(self, request: pytest.FixtureRequest):
+        class MockEramRunner(EramVisualsRunner):
+            def _get_platform_runner(self) -> None:
+                raise NotImplementedError
+
+        # 1. Define test data.
+        _output_dir = test_data_dir / request.node.name
+        if _output_dir.exists():
+            shutil.rmtree(_output_dir)
+        _csv_file = test_data_dir / "csv" / "evo_summary.csv"
+
+        # 2. Run mocked up test
+        _test_wrapper = EramVisualsWrapper(
+            input_file=_csv_file, output_dir=_output_dir, runner=MockEramRunner
+        )
+        _test_wrapper.execute()
+
+        # 3. Verify final expectations
+        assert _test_wrapper.status.status_type == ExternalWrapperStatusType.SUCCEEDED
+        assert _test_wrapper.output
+        assert _test_wrapper.output.png_output.exists()
+        assert _test_wrapper.output.pdf_output.exists()
