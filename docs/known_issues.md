@@ -22,6 +22,8 @@ export PATH=$PATH:/usr/lib64/R/bin:$PATH
 export RSCRIPT="/usr/lib64/R/bin/Rscript/"
 
 
+Because the import requires certain imports, it is wise to make a dummy run before 'deploying' to avoid longer times running.
+
 ### Proposed solution
 Include all these values in the .bash_profile of your system:
 ```bash
@@ -38,7 +40,6 @@ if [ -f ~/.bashrc ]; then
 fi
 
 # User specific environment and startup programs
-
 PATH=$PATH:$HOME/bin
 
 export PATH
