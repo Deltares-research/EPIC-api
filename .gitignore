@@ -11,3 +11,4 @@ __pycache__
 
 # Editor directories and files
 .vscode
+.Rproj.user
