@@ -1,3 +1,10 @@
+## v1.6.1 (2022-09-12)
+
+### Fix
+
+- **eram_visuals_wrapper.py**: Fixed run method to properly set the command when no platform was found
+- **eram_visuals.R**: Added missing dependency
+
 ## v1.6.0 (2022-09-10)
 
 ### Feat
