@@ -1,17 +1,17 @@
 #! /usr/bin/Rscript
 
 # Install requred R packages (if not already installed)
-if (!require("scales")) {
-  install.packages("scales")
+if (!require(scales)) {
+  install.packages("scales", repos = "http://cran.us.r-project.org")
 }
-if (!require("ggplot2")) {
-  install.packages("ggplot2")
+if (!require(ggplot2)) {
+  install.packages("ggplot2", repos = "http://cran.us.r-project.org")
 }
-if (!require("dplyr")) {
-  install.packages("dplyr")
+if (!require(dplyr)) {
+  install.packages("dplyr", repos = "http://cran.us.r-project.org")
 }
-if (!require("readr")) {
-  install.packages("readr")
+if (!require(readr)) {
+  install.packages("readr", repos = "http://cran.us.r-project.org")
 }
 
 ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
