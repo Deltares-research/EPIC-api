@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from epic_app.externals.ERAMVisuals.eram_visuals_wrapper import (
-    EramVisualsOutput,
+    EramVisualsRunner,
     EramVisualsWrapper,
 )
 from epic_app.externals.external_wrapper_base import (
@@ -26,7 +26,9 @@ class TestEramVisualsWrapper:
             shutil.rmtree(_output_dir)
 
         # 2. Run test.
-        eram_visuals = EramVisualsWrapper(input_file=_csv_file, output_dir=_output_dir)
+        eram_visuals = EramVisualsWrapper(
+            input_file=_csv_file, output_dir=_output_dir, runner=EramVisualsRunner
+        )
         eram_visuals.execute()
 
         # 3. Verify final expectations.
@@ -44,11 +46,6 @@ class TestEramVisualsWrapper:
             def run(self, *args, **kwargs) -> None:
                 raise Exception(_exception_mssg)
 
-        class MockEramVisualWrapper(EramVisualsWrapper):
-            @property
-            def runner(self) -> ExternalRunner:
-                return MockEramRunner()
-
         # 1. Define test data.
         _output_dir = test_data_dir / request.node.name
         if _output_dir.exists():
@@ -56,8 +53,8 @@ class TestEramVisualsWrapper:
         _csv_file = test_data_dir / "csv" / "evo_summary.csv"
 
         # 2. Run mocked up test
-        _test_wrapper = MockEramVisualWrapper(
-            input_file=_csv_file, output_dir=_output_dir
+        _test_wrapper = EramVisualsWrapper(
+            input_file=_csv_file, output_dir=_output_dir, runner=MockEramRunner
         )
         _test_wrapper.execute()
 

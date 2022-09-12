@@ -1,7 +1,7 @@
 import subprocess
 from os import environ
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Type
 
 from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.external_wrapper_base import (
@@ -61,13 +61,20 @@ class EramVisualsWrapper(ExternalWrapperBase):
     _required_packages = ("scales", "ggplot2", "dplyr", "readr", "stringr")
     _status: ExternalWrapperStatus = None
     _output: EramVisualsOutput = None
+    _runner: ExternalRunner = None
 
-    def __init__(self, input_file: Path, output_dir: Path) -> None:
+    def __init__(
+        self,
+        input_file: Path,
+        output_dir: Path,
+        runner: Type[ExternalRunner] = EramVisualsRunner,
+    ) -> None:
         super().__init__()
         self._status = ExternalWrapperStatus()
         self._input_file = input_file
         self._output_dir = output_dir
         self._output = EramVisualsOutput(output_dir)
+        self._runner = runner()
 
     @property
     def status(self) -> ExternalWrapperStatus:
@@ -115,17 +122,13 @@ class EramVisualsWrapper(ExternalWrapperBase):
         self._finalize_backup_file(failed=True)
 
     @property
-    def runner(self) -> ExternalRunner:
-        return EramVisualsRunner()
-
-    @property
     def output(self) -> ExternalRunnerOutput:
         return self._output
 
     def execute(self) -> None:
         try:
             self.initialize()
-            self.runner.run(input_file=self._input_file, output_dir=self._output_dir)
+            self._runner.run(input_file=self._input_file, output_dir=self._output_dir)
             self.finalize()
         except Exception as e_info:
             self.finalize_with_error(str(e_info))

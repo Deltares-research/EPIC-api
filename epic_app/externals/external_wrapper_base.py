@@ -63,9 +63,5 @@ class ExternalWrapperBase(typing.Protocol):
         pass
 
     @property
-    def runner(self) -> ExternalRunner:
-        pass
-
-    @property
     def status(self) -> ExternalWrapperStatus:
         pass

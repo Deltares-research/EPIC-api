@@ -1146,10 +1146,10 @@ class TestSummaryViewSet:
 
         # Verify final expectations.
         assert isinstance(response.data, dict)
+        assert response.status_code == 201
         assert ".png" in response.data["summary_graph"]
         assert ".pdf" in response.data["summary_pdf"]
         assert response.data["summary_data"]
-        assert response.status_code == 201
 
 
 @django_postgresql_db
