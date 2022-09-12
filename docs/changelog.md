@@ -1,3 +1,11 @@
+## v1.6.0 (2022-09-10)
+
+### Feat
+
+- We now retrieve the rscript path from the environment variables instead of hardcoded paths
+- **externals/ERAMVisuals**: Adapted code to run through command line. Adapted tests
+- Made R script into standalone script which takes arguments from the command line
+
 ## v1.5.1 (2022-09-09)
 
 ### Fix
