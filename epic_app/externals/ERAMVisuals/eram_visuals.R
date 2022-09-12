@@ -13,6 +13,9 @@ if (!require(dplyr)) {
 if (!require(readr)) {
   install.packages("readr", repos = "http://cran.us.r-project.org")
 }
+if (!require(stringr)) {
+  install.packages("stringr", repos = "http://cran.us.r-project.org")
+}
 
 ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
                            ymin = -60, ymax = 140, label_size = 2) {
