@@ -1,5 +1,19 @@
 #! /usr/bin/Rscript
 
+# Install requred R packages (if not already installed)
+if (!require(scales)) {
+  install.packages(scales)
+}
+if (!require(ggplot2)) {
+  install.packages(ggplot2)
+}
+if (!require(dplyr)) {
+  install.packages(dplyr)
+}
+if (!require(readr)) {
+  install.packages(readr)
+}
+
 ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
                            ymin = -60, ymax = 140, label_size = 2) {
   require(scales)
@@ -183,21 +197,6 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
 
   return(p)
 }
-
-# Install requred R packages (if not already installed)
-if (!require(scales)) {
-  install.packages(scales)
-}
-if (!require(ggplot2)) {
-  install.packages(ggplot2)
-}
-if (!require(dplyr)) {
-  install.packages(dplyr)
-}
-if (!require(readr)) {
-  install.packages(readr)
-}
-
 
 # Get arguments, we only care for the first one
 args <- commandArgs(trailingOnly = TRUE)
