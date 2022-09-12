@@ -44,7 +44,7 @@ class EramVisualsRunner(ExternalRunner):
             _command.append(self._get_platform_runner())
         except Exception as previous_exception:
             # Just give it a try in case it was not found a sys environment variable.
-            _command.append("Rscript")
+            _command.append("Rscript --verbose")
         assert eram_visuals_script.exists()
         _command.append(eram_visuals_script)
         _command.extend(kwargs.values())
