@@ -15,11 +15,20 @@ from epic_app.tests import test_data_dir
 
 
 class TestEramVisualsWrapper:
+    @pytest.mark.parametrize(
+        "test_file",
+        [
+            pytest.param("evo_summary.csv", id="ERAM Visual Sample data"),
+            pytest.param(
+                "evolution_empty_summary.csv", id="EPIC Generated sample data"
+            ),
+        ],
+    )
     def test_execute_r_snippet_with_sample_data_succeeds(
-        self, request: pytest.FixtureRequest
+        self, test_file: str, request: pytest.FixtureRequest
     ):
         # 1. Define test data.
-        _csv_file = test_data_dir / "csv" / "evo_summary.csv"
+        _csv_file = test_data_dir / "csv" / test_file
         assert _csv_file.exists()
         _output_dir = test_data_dir / request.node.name
         if _output_dir.exists():
