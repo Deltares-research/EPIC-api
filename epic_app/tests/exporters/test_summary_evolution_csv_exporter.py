@@ -19,7 +19,7 @@ class TestSummaryEvolutionCsvRow:
             pytest.param(4.2, id="As float"),
         ],
     )
-    def test_from_serialized_data(self, average_value: Union[str, float]):
+    def test_value_from_serialized_data(self, average_value: Union[str, float]):
         # 1. Given: define test data.
         _area_value = "Ut sint incididunt ut minim aliqua non culpa quis anim aliquip nostrud ullamco dolore officia."
         _group_value = (
@@ -41,6 +41,28 @@ class TestSummaryEvolutionCsvRow:
         assert _csv_row.group == _area_value[0]
         assert _csv_row.sub == _group_value
         assert _csv_row.individual == _program_value
+        assert _csv_row.value == "4.2"
+
+    def test_sub_and_individual_from_serialized_data(self):
+        # 1. Given: define test data.
+        _area_value = "Ut sint incididunt ut minim aliqua non culpa quis anim aliquip nostrud ullamco dolore officia."
+        _str_with_commas = "Just, a, value"
+        _expected_result = "Just  a  value"
+        # 2. When: run test.
+        _csv_row = SummaryEvolutionCsvRow.from_serialized_data(
+            dict(
+                area=_area_value,
+                group=_str_with_commas,
+                program=_str_with_commas,
+                average=4.2,
+            )
+        )
+
+        # 3. Then: validate expectations.
+        assert _csv_row
+        assert _csv_row.group == _area_value[0]
+        assert _csv_row.sub == _expected_result
+        assert _csv_row.individual == _expected_result
         assert _csv_row.value == "4.2"
 
     def test_to_string(self):
