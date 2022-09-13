@@ -1,3 +1,10 @@
+## v1.6.2 (2022-09-13)
+
+### Fix
+
+- Exporter was splitting programs with commas in the name
+- Fixed script so its not data-dependent
+
 ## v1.6.1 (2022-09-12)
 
 ### Fix
