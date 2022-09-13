@@ -33,7 +33,7 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
   data.template <- data.to.plot %>%
     mutate(group = factor(group, levels = group_levels)) %>%
     mutate(individual = factor(individual, levels = prog_levels)) %>%
-    # arrange(group) %>%
+    arrange(group) %>%
     mutate(value = 0)
 
   data2 <- data.to.plot %>%

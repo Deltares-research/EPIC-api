@@ -10,10 +10,13 @@ class SummaryEvolutionCsvRow:
 
     @classmethod
     def from_serialized_data(cls, serialized_data: dict):
+        def without_commas(column_value: str) -> str:
+            return column_value.replace(",", " ")
+
         new_row = cls()
         new_row.group = serialized_data["area"][0]  # only show the first letter
-        new_row.sub = serialized_data["group"]
-        new_row.individual = serialized_data["program"]
+        new_row.sub = without_commas(serialized_data["group"])
+        new_row.individual = without_commas(serialized_data["program"])
         new_row.value = str(serialized_data["average"]).replace(",", ".")
         return new_row
 
