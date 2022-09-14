@@ -30,7 +30,10 @@ class TestEramVisualsWrapper:
         # 1. Define test data.
         _csv_file = test_data_dir / "csv" / test_file
         assert _csv_file.exists()
-        _output_dir = test_data_dir / request.node.name
+        _test_case_name = (
+            request.node.name.replace(" ", "_").replace("[", "__").replace("]", "__")
+        )
+        _output_dir = test_data_dir / _test_case_name
         if _output_dir.exists():
             shutil.rmtree(_output_dir)
 
