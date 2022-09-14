@@ -30,6 +30,19 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
 
   prog_levels <- data.to.plot$individual
   group_levels <- unique(data.to.plot$group)
+  group_levels_default <- names(theme_colors)
+
+  # If group levels are not same as default, update the theme_colors
+  if(!all(group_levels_default == group_levels)) {
+
+    level_colors <- NULL
+    for (n in 1:length(group_levels)) {
+      level_colors <- append(level_colors, paste0("#",paste(sample(c(0:9, LETTERS[1:6]), 6, T), collapse = "")))
+    }
+
+    theme_colors <- setNames(level_colors, group_levels)
+  }
+
   data.template <- data.to.plot %>%
     mutate(group = factor(group, levels = group_levels)) %>%
     mutate(individual = factor(individual, levels = prog_levels)) %>%
@@ -37,12 +50,15 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
     mutate(value = 0)
 
   data2 <- data.to.plot %>%
-    # mutate(group = factor(group, levels = c("P", "I", "C", "R", "E"))) %>%
     mutate(group = factor(group, levels = group_levels)) %>%
     mutate(individual = factor(individual, levels = prog_levels)) %>%
     arrange(group) %>%
-    filter(value > 0) %>%
-    mutate(value = scales::rescale(value, to = c(20, 80)))
+    filter(value > 0)
+
+  # Rescale if there is nonzero values
+  if(nrow(data2) > 0) {
+    data2$value = scales::rescale(data2$value, to = c(20, 80), from = c(0,4))
+  }
 
   mindex <- which(data.template$individual %in% data2$individual)
   data.template$value[mindex] <- data2$value
@@ -73,7 +89,8 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
   grid_data <- base_data
   grid_data$end <- grid_data$end[c(nrow(grid_data), 1:nrow(grid_data) - 1)] + 1
   grid_data$start <- grid_data$start - 1
-  grid_data <- grid_data[-1, ]
+
+  if(length(group_levels) > 1) grid_data <- grid_data[-1, ]
 
   label_data2 <- filter(label_data, value > 0)
   label_dataNA <- filter(label_data, value == 0)
@@ -86,7 +103,7 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
     # Set main bars
     geom_bar(aes(x = as.factor(id), y = value), fill = "gray", stat = "identity", alpha = 0.8) +
 
-    # Set segments
+    # Set radial segments
     geom_segment(
       data = grid_data, aes(x = end, y = 80, xend = start, yend = 80),
       colour = "grey50", alpha = 1, size = 0.5, inherit.aes = F
@@ -103,12 +120,15 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
       data = grid_data, aes(x = end, y = 20, xend = start, yend = 20),
       colour = "grey50", alpha = 1, size = 0.5, inherit.aes = F
     ) +
+    geom_segment(
+      data = grid_data, aes(x = end, y = 0, xend = start, yend = 0),
+      colour = "grey50", alpha = 1, size = 0.5, inherit.aes = F
+    ) +
 
-    # Set yaxis scales
+    # Set y-axis scales
     annotate("text",
       x = rep(max(data.template$id), 5), y = c(0, 20, 40, 60, 80),
-      label = c("0", "1", "2", "3", "4"),
-      color = "grey50", size = 5,
+      label = c("0", "1", "2", "3", "4"), color = "grey50", size = 5,
       angle = 0, fontface = "bold", hjust = 1
     ) +
     ylim(ymin, ymax) +
@@ -125,16 +145,15 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
       data = data.template, stat = "identity"
     ) +
 
-    # Add program labels
-    geom_text(
-      data = label_data2,
-      aes(
-        x = id, y = value + 10, label = stringr::str_wrap(individual, 20),
-        lineheight = .75, hjust = hjust
-      ),
+    {if (nrow(label_data2) > 0)
+       # Add program labels
+      geom_text(
+        data = label_data2,
+          aes(x = id, y = value + 10, label = stringr::str_wrap(individual, 20),
+              lineheight = .75, hjust = hjust),
       color = "black", alpha = 0.6, size = label_size,
-      angle = label_data2$angle, inherit.aes = FALSE
-    ) +
+      angle = label_data2$angle, inherit.aes = FALSE)
+    } +
 
     # Add base line information
     geom_segment(
@@ -146,17 +165,7 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
       colour = "black", alpha = 1, size = 6, fontface = "bold", inherit.aes = F
     ) +
 
-    # Fill color
-    # Add needed values to the color collection
-    for (level_name in group_levels) {
-      if (!is.element(level_name, names(theme_colors))) {
-        level_color <- paste(sample(c(0:9, LETTERS[1:6]), 6, T), collapse = "")
-        level_key_value <- c(level_name = level_color)
-        theme_colors <- append(theme_colors, level_key_value)
-      }
-    }
-
-  scale_fill_manual(values = theme_colors)
+    scale_fill_manual(values = theme_colors)
 
   if (nrow(label_dataNA) > 0) {
     p <- p + geom_text(

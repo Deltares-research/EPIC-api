@@ -75,7 +75,7 @@ jobs:
           poetry run pytest --cov . --cov-report xml:coverage-reports/coverage-epictool-api.xml --junitxml=xunit-reports/xunit-result-epictool-api.xml
 
       - name: Autoformat code if the check fails
-        if: ${{ (matrix.os == 'ubuntu-18.04') && (matrix.python-version == 3.8) }}
+        if: ${{ (matrix.os == 'ubuntu-20.04') && (matrix.python-version == 3.8) }}
         run: |
           poetry run isort .
           poetry run black .
