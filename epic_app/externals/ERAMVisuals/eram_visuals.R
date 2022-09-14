@@ -57,7 +57,7 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
 
   # Rescale if there is nonzero values
   if(nrow(data2) > 0) {
-    data2$value = scales::rescale(data2$value, to = c(20, 80))
+    data2$value = scales::rescale(data2$value, to = c(20, 80), from = c(0,4))
   }
 
   mindex <- which(data.template$individual %in% data2$individual)
