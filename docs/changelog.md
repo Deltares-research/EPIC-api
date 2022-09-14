@@ -1,3 +1,9 @@
+## v1.6.3 (2022-09-14)
+
+### Fix
+
+- Fixed script so its not data-dependent (#17)
+
 ## v1.6.2 (2022-09-13)
 
 ### Fix
