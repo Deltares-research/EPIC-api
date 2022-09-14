@@ -1,0 +1,17 @@
+
+
+data_raw <- read_csv("./epic_app/externals/ERAMVisuals/eram_summary_sample.csv")
+
+data <- data_raw
+ERAMRadialPlot(data)
+
+data <- data_raw %>% mutate(value = 0)
+ERAMRadialPlot(data)
+
+
+data <- data_raw[c(12:13),]
+ERAMRadialPlot(data)
+
+
+data <- data_raw[c(1:24),]
+data.to.plot <- data
