@@ -21,8 +21,17 @@ In addition to the installation it is required to add in the system the environm
 export PATH=$PATH:/usr/lib64/R/bin:$PATH
 export RSCRIPT="/usr/lib64/R/bin/Rscript/"
 
-
 Because the import requires certain imports, it is wise to make a dummy run before 'deploying' to avoid longer times running.
+
+#### Unable to execute files
+It is possible CentOs complains about running / installing certain libraries.
+A work around was found here https://www.r-bloggers.com/2013/02/using-r-package-installation-problems/
+and it mostly translates to setting the TMPDIR to a specific location where we can set execution rights:
+```bash
+mkdir /var/www/r_scripts
+chmod 777 /var/www/r_scripts
+export TMPDIR="var/www/r_scripts"
+```
 
 ### Proposed solution
 Include all these values in the .bash_profile of your system:
@@ -53,5 +62,6 @@ export PGSERVICEFILE="/var/www/EPIC-api/.pg_service.conf"
 export LD_LIBRARY_PATH="/usr/local/lib/"
 alias python3="/usr/local/bin/python3.9"
 alias Rscript="/usr/lib64/R/bin/Rscript"
+alias RSCRIPT="/usr/lib64/R/bin/Rscript"
 alias pgsql="/usr/pgsql-11/bin"
 ```
