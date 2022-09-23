@@ -11,6 +11,9 @@ from epic_app.tests import test_data_dir
 
 
 class TestSummaryEvolutionCsvRow:
+    def _text_between_quotes(self, text: str) -> str:
+        return '"' + text + '"'
+
     @pytest.mark.parametrize(
         "average_value",
         [
@@ -39,8 +42,8 @@ class TestSummaryEvolutionCsvRow:
         # 3. Then: validate expectations.
         assert _csv_row
         assert _csv_row.group == _area_value[0]
-        assert _csv_row.sub == _group_value
-        assert _csv_row.individual == _program_value
+        assert _csv_row.sub == self._text_between_quotes(_group_value)
+        assert _csv_row.individual == self._text_between_quotes(_program_value)
         assert _csv_row.value == "4.2"
 
     def test_sub_and_individual_from_serialized_data(self):
@@ -61,8 +64,8 @@ class TestSummaryEvolutionCsvRow:
         # 3. Then: validate expectations.
         assert _csv_row
         assert _csv_row.group == _area_value[0]
-        assert _csv_row.sub == _expected_result
-        assert _csv_row.individual == _expected_result
+        assert _csv_row.sub == self._text_between_quotes(_expected_result)
+        assert _csv_row.individual == self._text_between_quotes(_expected_result)
         assert _csv_row.value == "4.2"
 
     def test_to_string(self):
