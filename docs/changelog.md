@@ -1,3 +1,9 @@
+## v1.6.5 (2022-09-23)
+
+### Fix
+
+- **eram_visuals_wrapper.py**: Small code improvement for better maintainability
+
 ## v1.6.4 (2022-09-23)
 
 ### Fix
