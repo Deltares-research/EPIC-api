@@ -1,5 +1,7 @@
 import logging
+import platform
 import subprocess
+from abc import abstractmethod
 from os import environ
 from pathlib import Path
 from typing import List, Optional, Type
@@ -46,39 +48,49 @@ class EramVisualsRunner(ExternalRunner):
             )
         _rscript_path = Path(_rscript_path)
         if not _rscript_path.exists():
-            raise FileNotFoundError(f"No RScript.exe found at {_rscript_path}")
+            raise FileNotFoundError(f"No RScript executable found at {_rscript_path}")
         return _rscript_path
 
-    def run(self, *args, **kwargs) -> None:
-        def get_command_values() -> List[str]:
-            _rcommand = []
-            _rcommand.append(str(eram_visuals_script.as_posix()))
-            _rcommand.extend(map(lambda x: str(x.as_posix()), kwargs.values()))
-            return _rcommand
+    def _get_command_values(self, dict_values: dict) -> List[Path]:
+        _rcommand = [eram_visuals_script]
+        _rcommand.extend(dict_values.values())
+        return _rcommand
 
-        _command = []
+    def run(self, *args, **kwargs) -> None:
         previous_exception = None
         assert eram_visuals_script.exists()
         self._set_logger(kwargs.get("output_dir", eram_visuals_script.parent))
+        _command = ""
         try:
-            _commands = get_command_values()
-            _command = list(map(str, _commands))
-            _execute_command = f"{self._get_platform_runner().as_posix()} --verbose"
-            _command.insert(0, _execute_command)
+            _command = self._get_command(kwargs)
         except Exception as previous_exception:
-            # Just give it a try in case it was not found a sys environment variable.
-            _commands = get_command_values()
-            _header = "Rscript --verbose"
-            _arguments = " ".join(map(str, _commands))
-            _command = _header + '"' + _arguments + "'"
             logging.error(previous_exception)
-        _command_as_str = " ".join(_command)
-        logging.info(_command_as_str)
-        _return_call = subprocess.call(_command_as_str, shell=True)
+            _command = self._get_fallback_command(kwargs)
+        logging.info(_command)
+        _return_call = subprocess.call(_command, shell=True)
         if _return_call != 0:
             if previous_exception:
                 raise previous_exception
             raise ValueError(f"Execution failed with code {_return_call}")
+
+    def _get_command(self, command_kwargs: List[Path]) -> str:
+        _command_args = list(
+            map(lambda x: x.as_posix(), self._get_command_values(command_kwargs))
+        )
+        _command = [self._get_platform_runner().as_posix(), "--verbose"]
+        _command.extend(_command_args)
+        logging.info(f"Platform runner found, args: {_command}")
+        return _command
+
+    def _get_fallback_command(self, command_kwargs: List[Path]) -> str:
+        # Just give it a try in case it was not found a sys environment variable.
+        _command_args = list(
+            map(lambda x: x.as_posix(), self._get_command_values(command_kwargs))
+        )
+        _command = ["Rscript", "--verbose"]
+        _command.extend(_command_args)
+        logging.info(f"Fallback run with {_command}")
+        return _command
 
 
 class EramVisualsWrapper(ExternalWrapperBase):
