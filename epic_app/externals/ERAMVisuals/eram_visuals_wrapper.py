@@ -63,7 +63,8 @@ class EramVisualsRunner(ExternalRunner):
         try:
             _commands = get_command_values()
             _command = list(map(str, _commands))
-            _command.insert(0, str(self._get_platform_runner().as_posix()))
+            _execute_command = f"{self._get_platform_runner().as_posix()} --verbose"
+            _command.insert(0, _execute_command)
         except Exception as previous_exception:
             # Just give it a try in case it was not found a sys environment variable.
             _commands = get_command_values()
@@ -71,8 +72,9 @@ class EramVisualsRunner(ExternalRunner):
             _arguments = " ".join(map(str, _commands))
             _command = _header + '"' + _arguments + "'"
             logging.error(previous_exception)
-        logging.info(_command)
-        _return_call = subprocess.call(_command, shell=True)
+        _command_as_str = " ".join(_command)
+        logging.info(_command_as_str)
+        _return_call = subprocess.call(_command_as_str, shell=True)
         if _return_call != 0:
             if previous_exception:
                 raise previous_exception
