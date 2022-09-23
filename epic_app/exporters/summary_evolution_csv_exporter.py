@@ -29,7 +29,7 @@ class SummaryEvolutionCsvRow:
         return "group, sub, individual, value"
 
     def to_string(self) -> str:
-        return f"{self.group}, {self.sub}, {self.individual}, {self.value}"
+        return f"{self.group},{self.sub},{self.individual},{self.value}"
 
 
 class SummaryEvolutionCsvFile:
