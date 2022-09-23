@@ -66,7 +66,7 @@ class EvolutionChoiceType(models.TextChoices):
     def to_int(evolution_answer: EvolutionChoiceType) -> int:
         _evolution_choices = EvolutionChoiceType.as_list()
         if not evolution_answer:
-            return _evolution_choices[0]
+            return 0
         return _evolution_choices.index(evolution_answer)
 
     @staticmethod
