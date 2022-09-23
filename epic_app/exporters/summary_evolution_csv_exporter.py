@@ -15,7 +15,8 @@ class SummaryEvolutionCsvRow:
             return '"' + column_value + '"'
 
         def get_average(value: float) -> int:
-            return str(value).replace(",", ".")
+            # Turns out R in linux does not like decimals so much :-)
+            return str(round(value))
 
         new_row = cls()
         new_row.group = serialized_data["area"][0]  # only show the first letter
