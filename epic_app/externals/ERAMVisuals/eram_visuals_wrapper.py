@@ -42,7 +42,9 @@ class EramVisualsRunner(ExternalRunner):
             _rcommand = []
             _rcommand.append(run_command)
             _rcommand.append(eram_visuals_script)
-            _rcommand.extend(map(lambda x: x.as_posix(), kwargs.values()))
+            _rcommand.extend(
+                map(lambda x: '"' + str(x.as_posix()) + '"', kwargs.values())
+            )
             return _rcommand
 
         _command = []
