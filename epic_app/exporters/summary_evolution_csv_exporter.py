@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 from typing import List
 
@@ -13,11 +14,14 @@ class SummaryEvolutionCsvRow:
         def _with_quotes(column_value: str) -> str:
             return '"' + column_value + '"'
 
+        def get_average(value: float) -> int:
+            return str(round(value))
+
         new_row = cls()
         new_row.group = serialized_data["area"][0]  # only show the first letter
         new_row.sub = _with_quotes(serialized_data["group"])
         new_row.individual = _with_quotes(serialized_data["program"])
-        new_row.value = str(serialized_data["average"]).replace(",", ".")
+        new_row.value = get_average(serialized_data["average"])
         return new_row
 
     @staticmethod
