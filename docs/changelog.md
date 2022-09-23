@@ -1,3 +1,10 @@
+## v1.6.6 (2022-09-23)
+
+### Fix
+
+- previous commit was wrong :)
+- **epic_quesitons**: when no evolution answer given it picks up the first answer available
+
 ## v1.6.5 (2022-09-23)
 
 ### Fix
