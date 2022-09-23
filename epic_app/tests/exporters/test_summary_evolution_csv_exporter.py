@@ -1,3 +1,4 @@
+import math
 import shutil
 from typing import Union
 
@@ -15,14 +16,15 @@ class TestSummaryEvolutionCsvRow:
         return '"' + text + '"'
 
     @pytest.mark.parametrize(
-        "average_value",
+        "average_value, expected_value",
         [
-            pytest.param("4,2", id="As str with comma"),
-            pytest.param("4.2", id="As str with point"),
-            pytest.param(4.2, id="As float"),
+            pytest.param(4, "4", id="As int"),
+            pytest.param(4.2, "5", id="As float"),
         ],
     )
-    def test_value_from_serialized_data(self, average_value: Union[str, float]):
+    def test_value_from_serialized_data(
+        self, average_value: Union[int, float], expected_value: str
+    ):
         # 1. Given: define test data.
         _area_value = "Ut sint incididunt ut minim aliqua non culpa quis anim aliquip nostrud ullamco dolore officia."
         _group_value = (
@@ -44,7 +46,7 @@ class TestSummaryEvolutionCsvRow:
         assert _csv_row.group == _area_value[0]
         assert _csv_row.sub == self._text_between_quotes(_group_value)
         assert _csv_row.individual == self._text_between_quotes(_program_value)
-        assert _csv_row.value == "4.2"
+        assert _csv_row.value == expected_value
 
     def test_sub_and_individual_from_serialized_data(self):
         # 1. Given: define test data.
@@ -66,7 +68,7 @@ class TestSummaryEvolutionCsvRow:
         assert _csv_row.group == _area_value[0]
         assert _csv_row.sub == _expected_result
         assert _csv_row.individual == _expected_result
-        assert _csv_row.value == "4.2"
+        assert _csv_row.value == "5"
 
     def test_to_string(self):
         # 1. Given: define test data.
@@ -82,7 +84,7 @@ class TestSummaryEvolutionCsvRow:
         # 3. Then: validate expectations.
         assert (
             _as_str
-            == f"{_csv_row.group}, {_csv_row.sub}, {_csv_row.individual}, {_csv_row.value}"
+            == f"{_csv_row.group},{_csv_row.sub},{_csv_row.individual},{_csv_row.value}"
         )
 
     def test_get_headers(self):
@@ -97,7 +99,7 @@ class TestSummaryEvolutionCsvExporter:
                 area="A group",
                 group="A sub",
                 program="An individual",
-                average="A value",
+                average=4.2,
             )
         )
         _test_data_dir = test_data_dir / request.node.name

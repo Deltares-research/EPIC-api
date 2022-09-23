@@ -14,15 +14,15 @@ class SummaryEvolutionCsvRow:
         def _with_quotes(column_value: str) -> str:
             return '"' + column_value + '"'
 
-        def get_average(value: float) -> int:
+        def get_average_round_up(value: float) -> int:
             # Turns out R in linux does not like decimals so much :-)
-            return str(round(value))
+            return str(math.ceil(value))
 
         new_row = cls()
         new_row.group = serialized_data["area"][0]  # only show the first letter
         new_row.sub = _with_quotes(serialized_data["group"])
         new_row.individual = _with_quotes(serialized_data["program"])
-        new_row.value = get_average(serialized_data["average"])
+        new_row.value = get_average_round_up(serialized_data["average"])
         return new_row
 
     @staticmethod
