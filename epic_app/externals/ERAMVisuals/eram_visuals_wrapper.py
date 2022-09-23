@@ -1,3 +1,4 @@
+import logging
 import subprocess
 from os import environ
 from pathlib import Path
@@ -24,6 +25,17 @@ class EramVisualsOutput:
 
 
 class EramVisualsRunner(ExternalRunner):
+    def _set_logger(self, output_dir: Path) -> None:
+        _log_file = output_dir / "eram.log"
+        _log_file.unlink(missing_ok=True)
+        _log_file.touch()
+        _logger = logging.getLogger("")
+        _logger.setLevel(logging.INFO)
+        self._file_handler = logging.FileHandler(filename=_log_file, mode="w")
+        self._file_handler.setLevel(logging.INFO)
+        _logger.addHandler(self._file_handler)
+        logging.info("Initialized")
+
     def _get_platform_runner(self) -> Path:
         # NOTE: Requires installing R in your system and defining a system variable
         # for the 'Rscript' executable.
@@ -40,23 +52,26 @@ class EramVisualsRunner(ExternalRunner):
     def run(self, *args, **kwargs) -> None:
         def get_command_values() -> List[str]:
             _rcommand = []
-            _rcommand.append(eram_visuals_script)
+            _rcommand.append(str(eram_visuals_script.as_posix()))
             _rcommand.extend(map(lambda x: str(x.as_posix()), kwargs.values()))
             return _rcommand
 
         _command = []
         previous_exception = None
         assert eram_visuals_script.exists()
-
+        self._set_logger(kwargs.get("output_dir", eram_visuals_script.parent))
         try:
-            _command = get_command_values()
-            _command.insert(0, self._get_platform_runner())
+            _commands = get_command_values()
+            _command = list(map(str, _commands))
+            _command.insert(0, str(self._get_platform_runner().as_posix()))
         except Exception as previous_exception:
             # Just give it a try in case it was not found a sys environment variable.
             _commands = get_command_values()
             _header = "Rscript --verbose"
             _arguments = " ".join(map(str, _commands))
             _command = _header + '"' + _arguments + "'"
+            logging.error(previous_exception)
+        logging.info(_command)
         _return_call = subprocess.call(_command, shell=True)
         if _return_call != 0:
             if previous_exception:
