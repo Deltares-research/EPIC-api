@@ -94,24 +94,48 @@ python3 --version
 If the latest step does not return at least that value you may need to recompile and install python ensuring the libraries are correctly exported as described in previous steps.
 
 ## Installing R
+Extracted from https://docs.rstudio.com/resources/install-r/
+
 * Update the machine packages:
 ```bash
-sudo yum install epel-release
+# Enable the Extra Packages for Enterprise Linux (EPEL) repository
+
+sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm 
+
+# On RHEL 7, enable the Optional repository
+
+sudo subscription-manager repos --enable "rhel-*-optional-rpms"
+
+# If running RHEL 7 in a public cloud, such as Amazon EC2, enable the
+# Optional repository from Red Hat Update Infrastructure (RHUI) instead
+
+sudo yum install yum-utils
+
+sudo yum-config-manager --enable "rhel-*-optional-rpms"
 ```
 *  Install the 'R' Packages:
 ```bash
-sudo yum install R
+export R_VERSION=4.1.3
+curl -O https://cdn.rstudio.com/r/centos-7/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
+sudo yum install R-${R_VERSION}-1-1.x86_64.rpm
 ```
 
 * Verify 'R' version:
 ```bash
 R --version
+/opt/R/${R_VERSION}/bin/R --version
+```
+
+* Create SIMLINK:
+```bash
+sudo ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R
+sudo ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript
 ```
 
 Don't forget to add these values into the system variables:
 ```bash
-export PATH=$PATH:/usr/lib64/R/bin:$PATH
-export RSCRIPT="/usr/lib64/R/bin/Rscript/"
+export PATH=$PATH:/usr/local/bin/R:$PATH
+export RSCRIPT="/usr/local/bin/Rscript"
 ```
 
 ## Installing Poetry:
@@ -152,6 +176,6 @@ export PATH="/root/.local/bin:$PATH"
     * [Installing latest Python on CentOs](https://computingforgeeks.com/install-latest-python-on-centos-linux/)
     > It is also possible replacing the previous python3 version, moving the python 3.6 to a backup directory (python3.6.bak), this way the alias gets picked up always.
 * R:
-    * [How to in stall R on CentOs 7](https://linuxize.com/post/how-to-install-r-on-centos-7/)
+    * [How to in stall R on CentOs 7](https://docs.rstudio.com/resources/install-r/)
 
 * (Extra) [Poetry official installer](https://python-poetry.org/docs/master/#installing-with-the-official-installer)

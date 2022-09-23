@@ -18,9 +18,13 @@ export PGSERVICEFILE=/var/www/EPIC-api/.pg_service.conf
 ### ERAM Visuals
 Because of the ERAM Visuals being an R script, it is required to have an installation of R in your system to generate such visuals.
 In addition to the installation it is required to add in the system the environment variable "RSCRIPT" pointing to the executable of the Rscript (*important* this is not the R.exe, but the Rscript.exe in Windows).
-export PATH=$PATH:/usr/lib64/R/bin:$PATH
-export RSCRIPT="/usr/lib64/R/bin/Rscript/"
+```bash
+sudo ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R
+sudo ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript
 
+export PATH=$PATH:/usr/local/bin/R:$PATH
+export RSCRIPT="/usr/local/bin/Rscript"
+```
 Because the import requires certain imports, it is wise to make a dummy run before 'deploying' to avoid longer times running.
 
 #### Unable to execute files
@@ -30,10 +34,10 @@ and it mostly translates to setting the TMPDIR to a specific location where we c
 ```bash
 mkdir /var/www/r_scripts
 chmod 777 /var/www/r_scripts
-export TMPDIR="var/www/r_scripts"
+export TMPDIR="/var/www/r_scripts"
 ```
 
-### Proposed solution
+## Unified Proposed solution
 Include all these values in the .bash_profile of your system:
 ```bash
 vi ~/.bash_profile
@@ -55,13 +59,17 @@ export PATH
 
 export PATH="$HOME/.poetry/bin:$PATH"
 export PATH="/usr/pgsql-11/bin:$PATH"
-export PATH="/usr/lib64/R/bin:$PATH"
+export PATH="/usr/local/bin/R:$PATH"
+export PATH="/usr/local/bin/Rscript:$PATH"
 export PATH="/usr/local/bin/python3.9:$PATH"
-export RSCRIPT="/usr/lib64/R/bin/Rscript"
+export RSCRIPT="/usr/local/bin/Rscript"
+export R="/usr/local/bin/R"
 export PGSERVICEFILE="/var/www/EPIC-api/.pg_service.conf"
 export LD_LIBRARY_PATH="/usr/local/lib/"
+export TMPDIR="/var/www/r_scripts"
 alias python3="/usr/local/bin/python3.9"
-alias Rscript="/usr/lib64/R/bin/Rscript"
-alias RSCRIPT="/usr/lib64/R/bin/Rscript"
+alias Rscript="/usr/local/bin/Rscript"
+alias RSCRIPT="/usr/local/bin/Rscript"
 alias pgsql="/usr/pgsql-11/bin"
+
 ```
