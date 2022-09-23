@@ -38,13 +38,10 @@ class EramVisualsRunner(ExternalRunner):
         return _rscript_path
 
     def run(self, *args, **kwargs) -> None:
-        def set_command_values(run_command: str) -> List[str]:
+        def get_command_values() -> List[str]:
             _rcommand = []
-            _rcommand.append(run_command)
             _rcommand.append(eram_visuals_script)
-            _rcommand.extend(
-                map(lambda x: '"' + str(x.as_posix()) + '"', kwargs.values())
-            )
+            _rcommand.extend(map(lambda x: str(x.as_posix()), kwargs.values()))
             return _rcommand
 
         _command = []
@@ -52,11 +49,14 @@ class EramVisualsRunner(ExternalRunner):
         assert eram_visuals_script.exists()
 
         try:
-            _command = set_command_values(self._get_platform_runner())
+            _command = get_command_values()
+            _command.insert(0, self._get_platform_runner())
         except Exception as previous_exception:
             # Just give it a try in case it was not found a sys environment variable.
-            _command = set_command_values("Rscript --verbose")
-            _command = " ".join(map(str, _command))
+            _commands = get_command_values()
+            _header = "Rscript --verbose"
+            _arguments = " ".join(map(str, _commands))
+            _command = _header + '"' + _arguments + "'"
         _return_call = subprocess.call(_command, shell=True)
         if _return_call != 0:
             if previous_exception:
