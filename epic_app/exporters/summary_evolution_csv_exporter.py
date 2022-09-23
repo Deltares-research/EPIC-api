@@ -13,13 +13,10 @@ class SummaryEvolutionCsvRow:
         def _with_quotes(column_value: str) -> str:
             return '"' + column_value + '"'
 
-        def without_commas(column_value: str) -> str:
-            return _with_quotes(column_value.replace(",", " "))
-
         new_row = cls()
         new_row.group = serialized_data["area"][0]  # only show the first letter
-        new_row.sub = without_commas(serialized_data["group"])
-        new_row.individual = without_commas(serialized_data["program"])
+        new_row.sub = _with_quotes(serialized_data["group"])
+        new_row.individual = _with_quotes(serialized_data["program"])
         new_row.value = str(serialized_data["average"]).replace(",", ".")
         return new_row
 

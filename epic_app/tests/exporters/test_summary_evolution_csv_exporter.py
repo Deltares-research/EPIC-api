@@ -50,7 +50,7 @@ class TestSummaryEvolutionCsvRow:
         # 1. Given: define test data.
         _area_value = "Ut sint incididunt ut minim aliqua non culpa quis anim aliquip nostrud ullamco dolore officia."
         _str_with_commas = "Just, a, value"
-        _expected_result = "Just  a  value"
+        _expected_result = self._text_between_quotes(_str_with_commas)
         # 2. When: run test.
         _csv_row = SummaryEvolutionCsvRow.from_serialized_data(
             dict(
@@ -64,8 +64,8 @@ class TestSummaryEvolutionCsvRow:
         # 3. Then: validate expectations.
         assert _csv_row
         assert _csv_row.group == _area_value[0]
-        assert _csv_row.sub == self._text_between_quotes(_expected_result)
-        assert _csv_row.individual == self._text_between_quotes(_expected_result)
+        assert _csv_row.sub == _expected_result
+        assert _csv_row.individual == _expected_result
         assert _csv_row.value == "4.2"
 
     def test_to_string(self):
