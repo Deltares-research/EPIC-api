@@ -1,3 +1,13 @@
+## v1.6.4 (2022-09-23)
+
+### Fix
+
+- **summary_evolution_csv_exporter**: Fixed logic (and tests) so that csv has no spaces between columns and values are rounded up
+- **eram_visuals_wrapper.py**: Paths as strings
+- wrap options between commas
+- **eram_visuals_wrapper.py**: Paths as posix
+- **summary_evolution_csv_exporter**: We now return the string values in the csv between commas
+
 ## v1.6.3 (2022-09-14)
 
 ### Fix
