@@ -29,11 +29,11 @@ P, "Flood and Drought Risk Mitigation and Contingency Planning", "Integrated Riv
 P, "Flood and Drought Risk Mitigation and Contingency Planning", "Coastal Zone Management Planning", 0.75
 P, "Flood and Drought Risk Mitigation and Contingency Planning", "Urban Water Supply Planning", 0.75
 P, "Flood and Drought Risk Mitigation and Contingency Planning", "Irrigation Water Supply Planning", 0.0
-R, "Drought Monitoring, Response and Recovery", "Drought Monitoring Program", 0.75
-R, "Drought Monitoring, Response and Recovery", "WRM Drought Response", 0.0
-R, "Drought Monitoring, Response and Recovery", "Agriculture Drought Response", 0.0
-R, "Drought Monitoring, Response and Recovery", "Social Protection Drought Response", 0.0
-R, "Flood Monitoring, Response and Recovery", "Flood Forecasting and Warning", 1.08
-R, "Flood Monitoring, Response and Recovery", "Flood Emergency Preparedness, Response, and Relief", 0.0
-R, "Flood Monitoring, Response and Recovery", "Flood Disaster Recovery", 0.83
+R, "Drought Monitoring Response and Recovery", "Drought Monitoring Program", 0.75
+R, "Drought Monitoring Response and Recovery", "WRM Drought Response", 0.0
+R, "Drought Monitoring Response and Recovery", "Agriculture Drought Response", 0.0
+R, "Drought Monitoring Response and Recovery", "Social Protection Drought Response", 0.0
+R, "Flood Monitoring Response and Recovery", "Flood Forecasting and Warning", 1.08
+R, "Flood Monitoring Response and Recovery", "Flood Emergency Preparedness, Response, and Relief", 0.0
+R, "Flood Monitoring Response and Recovery", "Flood Disaster Recovery", 0.83
 R, "Disaster Risk Financing", "Disaster Risk Financing National Sector Framework and Instruments", 0.0
