@@ -31,7 +31,7 @@ class EramVisualsRunnerBase(ExternalRunnerProtocol):
         _command_args = list(
             map(lambda x: x.as_posix(), self._get_command_values(command_kwargs))
         )
-        _command = [self._get_platform_runner().as_posix(), "--verbose"]
+        _command = [str(self._get_platform_runner()), "--verbose"]
         _command.extend(_command_args)
         logging.info(f"Platform runner found, args: {_command}")
         return _command
