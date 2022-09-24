@@ -23,7 +23,8 @@ class EramVisualsRunnerBase(ExternalRunnerProtocol):
 
     def _get_command_values(self, dict_values: dict) -> List[Path]:
         _rcommand = [eram_visuals_script]
-        _rcommand.extend(dict_values.values())
+        _rcommand.append(dict_values["input_file"])
+        _rcommand.append(dict_values["output_dir"])
         return _rcommand
 
     def _get_command(self, command_kwargs: List[Path]) -> str:

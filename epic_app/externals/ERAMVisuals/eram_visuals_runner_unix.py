@@ -12,6 +12,7 @@ from epic_app.externals.external_runner_logging import ExternalRunnerLogging
 class EramVisualsRunnerUnix(EramVisualsRunnerBase):
     def run(self, *args, **kwargs) -> None:
         assert eram_visuals_script.exists()
+        self.output_dir = kwargs["output_dir"]
         with ExternalRunnerLogging(self):
             try:
                 self._run_with(self._get_command(kwargs))
