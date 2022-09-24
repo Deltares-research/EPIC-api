@@ -1,13 +1,121 @@
+from __future__ import annotations
+
 import logging
+import subprocess
 from os import environ
 from pathlib import Path
-from typing import List
+from typing import Any, List, Protocol, Tuple, Union
 
 from epic_app.externals.ERAMVisuals import eram_visuals_script
+from epic_app.externals.external_runner_logging import ExternalRunnerLogging
 from epic_app.externals.external_runner_protocol import ExternalRunnerProtocol
 
 
+class EramVisualsScriptArguments:
+    def __init__(
+        self,
+        main_call: Path,
+        fallback_call: Union[Path, str],
+        csv_input: Path,
+        output_dir: Path,
+    ) -> None:
+        self._main_call = main_call
+        self._fallback_call = fallback_call
+        self._csv_input = csv_input
+        self._output_dir = output_dir
+        self._eram_visuals = eram_visuals_script
+
+    def as_main_call(self) -> List[Union[Path, str]]:
+        return [
+            self._main_call,
+            self._eram_visuals,
+            self._csv_input,
+            self._output_dir,
+            "--verbose",
+        ]
+
+    def as_fallback_call(self) -> List[Union[Path, str]]:
+        return [
+            self._fallback_call,
+            self._eram_visuals,
+            self._csv_input,
+            self._output_dir,
+            "--verbose",
+        ]
+
+
+class EramVisualsScriptArgumentsUnified(EramVisualsScriptArguments):
+    def as_main_call(self) -> List[Union[Path, str]]:
+        return [" ".join(super().as_main_call())]
+
+    def as_fallback_call(self) -> List[Union[Path, str]]:
+        return [" ".join(super().as_fallback_call())]
+
+
+class TryHardRunner:
+    def run(self, eram_script_args: EramVisualsScriptArguments) -> None:
+        try:
+            logging.info(f"Trying first run given arguments to subprocess as a list")
+            self._run_with(eram_script_args.as_main_call())
+        except Exception as previous_exception:
+            logging.info(
+                f"Fallback run triggered due to exception {previous_exception}"
+            )
+            self._run_with(eram_script_args.as_fallback_call())
+
+    def _run_with(self, _subprocess_call: Any) -> None:
+        logging.info(f"Running command: {_subprocess_call}")
+        _return_output = subprocess.run(
+            _subprocess_call, shell=True, capture_output=True, text=True
+        )
+        logging.info(f"Output run: {_return_output.stdout}")
+        if _return_output.returncode != 0:
+            _call_err = f"Execution failed with code {_return_output.returncode}. Error log: {_return_output.stderr}"
+            logging.error(_call_err)
+            raise ValueError(_call_err)
+
+
 class EramVisualsRunnerBase(ExternalRunnerProtocol):
+    def run(self, *args, **kwargs) -> None:
+        assert eram_visuals_script.exists()
+        _output_dir = kwargs["output_dir"]
+        with ExternalRunnerLogging(self, _output_dir):
+            _try_hard_runner = TryHardRunner()
+            try:
+                _try_hard_runner.run(
+                    EramVisualsScriptArguments(
+                        self._get_platform_runner(),
+                        "Rscript",
+                        kwargs["input_file"],
+                        _output_dir,
+                    )
+                )
+            except Exception as first_try_exc:
+                logging.info(f"Fallback run triggered due to exception {first_try_exc}")
+                _try_hard_runner.run(
+                    EramVisualsScriptArgumentsUnified(
+                        self._get_platform_runner(),
+                        "Rscript",
+                        kwargs["input_file"],
+                        _output_dir,
+                    )
+                )
+
+    def _run_with(
+        self, r_script_bin: Union[Path, str], eram_args: EramVisualsScriptArguments
+    ) -> None:
+        _subprocess_call = eram_args.as_subprocess_call(r_script_bin)
+        _command_str = " ".join(_subprocess_call)
+        logging.info(f"Running command: {_command_str}")
+        _return_output = subprocess.run(
+            _subprocess_call, shell=True, capture_output=True, text=True
+        )
+        logging.info(f"Output run: {_return_output.stdout}")
+        if _return_output.returncode != 0:
+            _call_err = f"Execution failed with code {_return_output.returncode}. Error log: {_return_output.stderr}"
+            logging.error(_call_err)
+            raise ValueError(_call_err)
+
     def _get_platform_runner(self) -> Path:
         # NOTE: Requires installing R in your system and defining a system variable
         # for the 'Rscript' executable.
@@ -20,28 +128,3 @@ class EramVisualsRunnerBase(ExternalRunnerProtocol):
         if not _rscript_path.exists():
             raise FileNotFoundError(f"No RScript executable found at {_rscript_path}")
         return _rscript_path
-
-    def _get_command_values(self, dict_values: dict) -> List[Path]:
-        _rcommand = [eram_visuals_script]
-        _rcommand.append(dict_values["input_file"])
-        _rcommand.append(dict_values["output_dir"])
-        return _rcommand
-
-    def _get_command(self, command_kwargs: List[Path]) -> str:
-        _command_args = list(
-            map(lambda x: x.as_posix(), self._get_command_values(command_kwargs))
-        )
-        _command = [str(self._get_platform_runner()), "--verbose"]
-        _command.extend(_command_args)
-        logging.info(f"Platform runner found, args: {_command}")
-        return _command
-
-    def _get_fallback_command(self, command_kwargs: List[Path]) -> str:
-        # Just give it a try in case it was not found a sys environment variable.
-        _command_args = list(
-            map(lambda x: x.as_posix(), self._get_command_values(command_kwargs))
-        )
-        _command = ["Rscript", "--verbose"]
-        _command.extend(_command_args)
-        logging.info(f"Fallback run with {_command}")
-        return _command
