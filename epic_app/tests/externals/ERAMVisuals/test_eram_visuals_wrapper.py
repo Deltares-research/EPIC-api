@@ -2,14 +2,9 @@ import shutil
 
 import pytest
 
-from epic_app.externals.ERAMVisuals.eram_visuals_wrapper import (
-    EramVisualsRunner,
-    EramVisualsWrapper,
-)
-from epic_app.externals.external_wrapper_base import (
-    ExternalRunner,
-    ExternalWrapperStatusType,
-)
+from epic_app.externals.ERAMVisuals.eram_visuals_wrapper import EramVisualsWrapper
+from epic_app.externals.external_runner_protocol import ExternalRunnerProtocol
+from epic_app.externals.external_wrapper_status import ExternalWrapperStatusType
 from epic_app.tests import test_data_dir
 
 
@@ -38,7 +33,7 @@ class TestEramVisualsWrapper:
 
         # 2. Run test.
         eram_visuals = EramVisualsWrapper(
-            input_file=_csv_file, output_dir=_output_dir, runner=EramVisualsRunner
+            input_file=_csv_file, output_dir=_output_dir, runner=ExternalRunnerProtocol
         )
         eram_visuals.execute()
 
@@ -78,7 +73,7 @@ class TestEramVisualsWrapper:
         assert not _test_wrapper.output.png_output.exists()
 
     def test_given_missing_r_script_tries_again(self, request: pytest.FixtureRequest):
-        class MockEramRunner(EramVisualsRunner):
+        class MockEramRunner(ExternalRunnerProtocol):
             def _get_platform_runner(self) -> None:
                 raise NotImplementedError
 
