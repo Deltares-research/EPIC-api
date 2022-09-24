@@ -1,5 +1,6 @@
 # Create your views here.
 import io
+import platform
 from pathlib import Path
 from typing import List, Type, Union
 
@@ -16,7 +17,9 @@ from epic_app import epic_permissions
 from epic_app import serializers as epic_serializer
 from epic_app.exporters.summary_evolution_csv_exporter import SummaryEvolutionCsvFile
 from epic_app.externals import EramVisualsWrapper
-from epic_app.externals.ERAMVisuals.eram_visuals_wrapper import EramVisualsRunner
+from epic_app.externals.ERAMVisuals.eram_visuals_runner_factory import (
+    EramVisualsRunnerFactory,
+)
 from epic_app.externals.external_wrapper_status import ExternalWrapperStatusType
 from epic_app.models.epic_answers import Answer
 from epic_app.models.epic_questions import (
@@ -553,7 +556,7 @@ class SummaryViewSet(viewsets.ModelViewSet):
         eram_wrapper = EramVisualsWrapper(
             input_file=_csv_evolution_summary,
             output_dir=_base_dir,
-            runner=EramVisualsRunner,
+            runner=EramVisualsRunnerFactory.get_runner(platform.platform()),
         )
         eram_wrapper.execute()
         _root_url = f"http://{request.get_host()}"

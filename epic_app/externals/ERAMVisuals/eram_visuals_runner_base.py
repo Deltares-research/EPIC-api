@@ -1,17 +1,13 @@
 import logging
 from os import environ
 from pathlib import Path
-from typing import Any, List
+from typing import List
 
 from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.external_runner_protocol import ExternalRunnerProtocol
 
 
 class EramVisualsRunnerBase(ExternalRunnerProtocol):
-    @staticmethod
-    def can_run(platform: str) -> bool:
-        raise NotImplementedError("Implement in concrete classes.")
-
     def _get_platform_runner(self) -> Path:
         # NOTE: Requires installing R in your system and defining a system variable
         # for the 'Rscript' executable.

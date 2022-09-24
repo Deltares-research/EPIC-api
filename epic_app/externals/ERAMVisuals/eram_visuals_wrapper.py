@@ -2,7 +2,9 @@ from pathlib import Path
 from typing import Type
 
 from epic_app.externals.ERAMVisuals.eram_visuals_output import EramVisualsOutput
-from epic_app.externals.ERAMVisuals.eram_visuals_runner import EramVisualsRunner
+from epic_app.externals.ERAMVisuals.eram_visuals_runner_base import (
+    EramVisualsRunnerBase,
+)
 from epic_app.externals.external_runner_protocol import ExternalRunnerProtocol
 from epic_app.externals.external_wrapper_protocol import ExternalWrapperProtocol
 from epic_app.externals.external_wrapper_status import ExternalWrapperStatus
@@ -19,7 +21,7 @@ class EramVisualsWrapper(ExternalWrapperProtocol):
         self,
         input_file: Path,
         output_dir: Path,
-        runner: Type = EramVisualsRunner,
+        runner: Type = EramVisualsRunnerBase,
     ) -> None:
         super().__init__()
         self._status = ExternalWrapperStatus()

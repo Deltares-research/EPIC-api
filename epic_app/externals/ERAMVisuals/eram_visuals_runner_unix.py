@@ -6,17 +6,13 @@ from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.ERAMVisuals.eram_visuals_runner_base import (
     EramVisualsRunnerBase,
 )
-from epic_app.externals.external_logging import ExternalLogging
+from epic_app.externals.external_runner_logging import ExternalRunnerLogging
 
 
 class EramVisualsRunnerUnix(EramVisualsRunnerBase):
-    @staticmethod
-    def can_run(platform: str) -> bool:
-        return platform.lower() != "windows"
-
     def run(self, *args, **kwargs) -> None:
         assert eram_visuals_script.exists()
-        with ExternalLogging(self):
+        with ExternalRunnerLogging(self):
             try:
                 self._run_with(self._get_command(kwargs))
             except Exception as previous_exception:

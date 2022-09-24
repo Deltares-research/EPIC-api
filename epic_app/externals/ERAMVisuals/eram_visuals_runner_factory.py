@@ -1,10 +1,14 @@
-from epic_app.exporters.ERAMVisuals.eram_Visuals_runner_unix import (
+from typing import List
+
+from epic_app.externals.ERAMVisuals.eram_visuals_runner_base import (
+    EramVisualsRunnerBase,
+)
+from epic_app.externals.ERAMVisuals.eram_visuals_runner_unix import (
     EramVisualsRunnerUnix,
 )
-from epic_app.exporters.ERAMVisuals.eram_Visuals_runner_windows import (
+from epic_app.externals.ERAMVisuals.eram_visuals_runner_windows import (
     EramVisualsRunnerWindows,
 )
-from epic_app.externals.ERAMVisuals.eram_visuals_runner import EramVisualsRunnerBase
 
 
 class EramVisualsRunnerFactory:
@@ -16,17 +20,13 @@ class EramVisualsRunnerFactory:
         Returns:
             EramVisualsRunner: Runner suitable for the platform.
         """
-        _available_runners: List[EramVisualsRunnerBase] = [
-            EramVisualsRunnerWindows,
-            EramVisualsRunnerUnix,
-        ]
-        _elegible_runners = [
-            runner for runner in _available_runners if runner.can_run(platform)
-        ]
-        if not _elegible_runners:
+        _available_runners = dict(
+            windows=EramVisualsRunnerWindows, linux=EramVisualsRunnerUnix
+        )
+        _runner = _available_runners.get(platform.lower(), None)
+        if not _runner:
             raise NotImplementedError(
                 "No runner available for platform {}".format(platform)
             )
-        if len(_elegible_runners) > 1:
-            raise ValueError("No more than one runner should be elegible.")
-        return _elegible_runners[0]
+
+        return _runner
