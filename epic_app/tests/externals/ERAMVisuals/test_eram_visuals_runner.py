@@ -2,13 +2,11 @@ import shutil
 
 import pytest
 
-from epic_app.externals.ERAMVisuals.eram_visuals_runner_windows import (
-    EramVisualsRunnerWindows,
-)
+from epic_app.externals.ERAMVisuals.eram_visuals_runner import EramVisualsRunner
 from epic_app.tests import test_data_dir
 
 
-class TestEramVisualsRunnerWindows:
+class TestEramVisualsRunner:
     @pytest.mark.parametrize(
         "test_file",
         [
@@ -28,7 +26,7 @@ class TestEramVisualsRunnerWindows:
         _output_dir.mkdir(parents=True)
         _expected_file = _output_dir / "eram_visuals"
         # 2. Run test
-        EramVisualsRunnerWindows().run(output_dir=_output_dir, input_file=_csv_file)
+        EramVisualsRunner().run(output_dir=_output_dir, input_file=_csv_file)
 
         # 3. Verify final expectations
         assert _output_dir.is_dir()

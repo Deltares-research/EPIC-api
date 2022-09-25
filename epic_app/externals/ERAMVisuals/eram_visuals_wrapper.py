@@ -1,10 +1,7 @@
 from pathlib import Path
-from typing import Type
 
 from epic_app.externals.ERAMVisuals.eram_visuals_output import EramVisualsOutput
-from epic_app.externals.ERAMVisuals.eram_visuals_runner_base import (
-    EramVisualsRunnerBase,
-)
+from epic_app.externals.ERAMVisuals.eram_visuals_runner import EramVisualsRunner
 from epic_app.externals.external_runner_protocol import ExternalRunnerProtocol
 from epic_app.externals.external_wrapper_protocol import ExternalWrapperProtocol
 from epic_app.externals.external_wrapper_status import ExternalWrapperStatus
@@ -15,20 +12,14 @@ class EramVisualsWrapper(ExternalWrapperProtocol):
     _required_packages = ("scales", "ggplot2", "dplyr", "readr", "stringr")
     _status: ExternalWrapperStatus = None
     _output: EramVisualsOutput = None
-    _runner: ExternalRunnerProtocol = None
+    _runner: ExternalRunnerProtocol = EramVisualsRunner()
 
-    def __init__(
-        self,
-        input_file: Path,
-        output_dir: Path,
-        runner: Type = EramVisualsRunnerBase,
-    ) -> None:
+    def __init__(self, input_file: Path, output_dir: Path) -> None:
         super().__init__()
         self._status = ExternalWrapperStatus()
         self._input_file = input_file
         self._output_dir = output_dir
         self._output = EramVisualsOutput(output_dir)
-        self._runner = runner()
 
     @property
     def status(self) -> ExternalWrapperStatus:
@@ -39,6 +30,9 @@ class EramVisualsWrapper(ExternalWrapperProtocol):
 
     def initialize(self) -> None:
         self._status.to_initialized()
+        assert isinstance(
+            self._runner, ExternalRunnerProtocol
+        ), "Runner was not initialized"
         if not self._output_dir.exists():
             self._output_dir.mkdir(parents=True)
 

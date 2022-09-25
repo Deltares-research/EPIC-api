@@ -4,14 +4,18 @@ import logging
 import subprocess
 from os import environ
 from pathlib import Path
-from typing import Any, List, Protocol, Tuple, Union
+from typing import List, Union
 
 from epic_app.externals.ERAMVisuals import eram_visuals_script
 from epic_app.externals.external_runner_logging import ExternalRunnerLogging
 from epic_app.externals.external_runner_protocol import ExternalRunnerProtocol
+from epic_app.externals.subprocess_try_hard_runner import (
+    ExternalScriptArguments,
+    SubprocessTryHardRunner,
+)
 
 
-class EramVisualsScriptArguments:
+class EramVisualsScriptArguments(ExternalScriptArguments):
     def __init__(
         self,
         main_call: Path,
@@ -52,35 +56,12 @@ class EramVisualsScriptArgumentsUnified(EramVisualsScriptArguments):
         return [" ".join(super().as_fallback_call())]
 
 
-class TryHardRunner:
-    def run(self, eram_script_args: EramVisualsScriptArguments) -> None:
-        try:
-            logging.info(f"Trying first run given arguments to subprocess as a list")
-            self._run_with(eram_script_args.as_main_call())
-        except Exception as previous_exception:
-            logging.info(
-                f"Fallback run triggered due to exception {previous_exception}"
-            )
-            self._run_with(eram_script_args.as_fallback_call())
-
-    def _run_with(self, _subprocess_call: Any) -> None:
-        logging.info(f"Running command: {_subprocess_call}")
-        _return_output = subprocess.run(
-            _subprocess_call, shell=True, capture_output=True, text=True
-        )
-        logging.info(f"Output run: {_return_output.stdout}")
-        if _return_output.returncode != 0:
-            _call_err = f"Execution failed with code {_return_output.returncode}. Error log: {_return_output.stderr}"
-            logging.error(_call_err)
-            raise ValueError(_call_err)
-
-
-class EramVisualsRunnerBase(ExternalRunnerProtocol):
+class EramVisualsRunner(ExternalRunnerProtocol):
     def run(self, *args, **kwargs) -> None:
         assert eram_visuals_script.exists()
         _output_dir = kwargs["output_dir"]
         with ExternalRunnerLogging(self, _output_dir):
-            _try_hard_runner = TryHardRunner()
+            _try_hard_runner = SubprocessTryHardRunner()
             try:
                 _try_hard_runner.run(
                     EramVisualsScriptArguments(

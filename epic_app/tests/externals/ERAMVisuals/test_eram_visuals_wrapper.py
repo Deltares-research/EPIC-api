@@ -32,9 +32,8 @@ class TestEramVisualsWrapper:
             shutil.rmtree(_output_dir)
 
         # 2. Run test.
-        eram_visuals = EramVisualsWrapper(
-            input_file=_csv_file, output_dir=_output_dir, runner=ExternalRunnerProtocol
-        )
+        eram_visuals = EramVisualsWrapper(input_file=_csv_file, output_dir=_output_dir)
+        eram_visuals._runner = ExternalRunnerProtocol()
         eram_visuals.execute()
 
         # 3. Verify final expectations.
@@ -48,7 +47,7 @@ class TestEramVisualsWrapper:
     ):
         _exception_mssg = "Ea aliqua culpa occaecat minim reprehenderit et."
 
-        class MockEramRunner(ExternalRunner):
+        class MockEramRunner(ExternalRunnerProtocol):
             def run(self, *args, **kwargs) -> None:
                 raise Exception(_exception_mssg)
 
@@ -59,9 +58,8 @@ class TestEramVisualsWrapper:
         _csv_file = test_data_dir / "csv" / "evo_summary.csv"
 
         # 2. Run mocked up test
-        _test_wrapper = EramVisualsWrapper(
-            input_file=_csv_file, output_dir=_output_dir, runner=MockEramRunner
-        )
+        _test_wrapper = EramVisualsWrapper(input_file=_csv_file, output_dir=_output_dir)
+        _test_wrapper._runner = MockEramRunner()
         _test_wrapper.execute()
 
         # 3. Verify final expectations
@@ -84,9 +82,8 @@ class TestEramVisualsWrapper:
         _csv_file = test_data_dir / "csv" / "evo_summary.csv"
 
         # 2. Run mocked up test
-        _test_wrapper = EramVisualsWrapper(
-            input_file=_csv_file, output_dir=_output_dir, runner=MockEramRunner
-        )
+        _test_wrapper = EramVisualsWrapper(input_file=_csv_file, output_dir=_output_dir)
+        _test_wrapper._runner = MockEramRunner()
         _test_wrapper.execute()
 
         # 3. Verify final expectations
