@@ -27,13 +27,12 @@ class TestEramVisualsWrapper:
         _test_case_name = (
             request.node.name.replace(" ", "_").replace("[", "__").replace("]", "__")
         )
-        _output_dir = test_data_dir / _test_case_name
+        _output_dir = test_data_dir / type(self).__name__ / _test_case_name
         if _output_dir.exists():
             shutil.rmtree(_output_dir)
 
         # 2. Run test.
         eram_visuals = EramVisualsWrapper(input_file=_csv_file, output_dir=_output_dir)
-        eram_visuals._runner = ExternalRunnerProtocol()
         eram_visuals.execute()
 
         # 3. Verify final expectations.
@@ -41,6 +40,8 @@ class TestEramVisualsWrapper:
         assert eram_visuals.output
         assert eram_visuals.output.png_output.exists()
         assert eram_visuals.output.pdf_output.exists()
+        _log_file = next(_output_dir.glob("*.log"), None)
+        assert _log_file
 
     def test_given_failed_execute_status_is_failed(
         self, request: pytest.FixtureRequest
@@ -69,25 +70,3 @@ class TestEramVisualsWrapper:
         assert _test_wrapper.output
         assert not _test_wrapper.output.pdf_output.exists()
         assert not _test_wrapper.output.png_output.exists()
-
-    def test_given_missing_r_script_tries_again(self, request: pytest.FixtureRequest):
-        class MockEramRunner(ExternalRunnerProtocol):
-            def _get_platform_runner(self) -> None:
-                raise NotImplementedError
-
-        # 1. Define test data.
-        _output_dir = test_data_dir / request.node.name
-        if _output_dir.exists():
-            shutil.rmtree(_output_dir)
-        _csv_file = test_data_dir / "csv" / "evo_summary.csv"
-
-        # 2. Run mocked up test
-        _test_wrapper = EramVisualsWrapper(input_file=_csv_file, output_dir=_output_dir)
-        _test_wrapper._runner = MockEramRunner()
-        _test_wrapper.execute()
-
-        # 3. Verify final expectations
-        assert _test_wrapper.status.status_type == ExternalWrapperStatusType.SUCCEEDED
-        assert _test_wrapper.output
-        assert _test_wrapper.output.png_output.exists()
-        assert _test_wrapper.output.pdf_output.exists()

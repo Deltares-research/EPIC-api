@@ -21,7 +21,10 @@ class TestEramVisualsRunner:
     ):
         # 1. Define test data.
         _csv_file = test_data_dir / "csv" / test_file
-        _output_dir = test_data_dir / type(self).__name__ / request.node.name
+        _test_case_name = (
+            request.node.name.replace(" ", "_").replace("[", "__").replace("]", "__")
+        )
+        _output_dir = test_data_dir / type(self).__name__ / _test_case_name
         shutil.rmtree(_output_dir, ignore_errors=True)
         _output_dir.mkdir(parents=True)
         _expected_file = _output_dir / "eram_visuals"

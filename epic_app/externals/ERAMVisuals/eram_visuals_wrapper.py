@@ -9,7 +9,6 @@ from epic_app.externals.external_wrapper_status import ExternalWrapperStatus
 
 class EramVisualsWrapper(ExternalWrapperProtocol):
 
-    _required_packages = ("scales", "ggplot2", "dplyr", "readr", "stringr")
     _status: ExternalWrapperStatus = None
     _output: EramVisualsOutput = None
     _runner: ExternalRunnerProtocol = EramVisualsRunner()
