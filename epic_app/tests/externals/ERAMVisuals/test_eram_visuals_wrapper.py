@@ -2,6 +2,9 @@ import shutil
 
 import pytest
 
+from epic_app.externals.ERAMVisuals.eram_visuals_runner import (
+    EramVisualsScriptArguments,
+)
 from epic_app.externals.ERAMVisuals.eram_visuals_wrapper import EramVisualsWrapper
 from epic_app.externals.external_runner_protocol import ExternalRunnerProtocol
 from epic_app.externals.external_wrapper_status import ExternalWrapperStatusType
@@ -9,15 +12,13 @@ from epic_app.tests import test_data_dir
 
 
 class TestEramVisualsWrapper:
-    @pytest.mark.parametrize(
-        "test_file",
-        [
-            pytest.param("evo_summary.csv", id="ERAM Visual Sample data"),
-            pytest.param(
-                "evolution_empty_summary.csv", id="EPIC Generated sample data"
-            ),
-        ],
-    )
+
+    csv_test_cases = [
+        pytest.param("evo_summary.csv", id="ERAM Visual Sample data"),
+        pytest.param("evolution_empty_summary.csv", id="EPIC Generated sample data"),
+    ]
+
+    @pytest.mark.parametrize("test_file", csv_test_cases)
     def test_execute_r_snippet_with_sample_data_succeeds(
         self, test_file: str, request: pytest.FixtureRequest
     ):

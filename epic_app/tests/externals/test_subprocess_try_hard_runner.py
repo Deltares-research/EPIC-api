@@ -2,9 +2,10 @@ from typing import Any
 
 import pytest
 
-from epic_app.externals.subprocess_try_hard_runner import (
-    ExternalScriptArguments,
-    SubprocessTryHardRunner,
+from epic_app.externals.subprocess_try_hard_runner import SubprocessTryHardRunner
+from epic_app.externals.try_hard_script_arguments_protocol import (
+    TryHardScriptArgumentsProtocol,
+    TryHardScriptCallProtocol,
 )
 
 
@@ -20,7 +21,7 @@ class TestSubprocessTryHardRunner:
                 if not _subprocess_call:
                     raise ValueError()
 
-        class MockExternalScriptArguments(ExternalScriptArguments):
+        class MockExternalScriptCallArguments(TryHardScriptCallProtocol):
             def __init__(self) -> None:
                 super().__init__()
                 self._as_main_call = 0
@@ -38,7 +39,7 @@ class TestSubprocessTryHardRunner:
         assert isinstance(_runner, SubprocessTryHardRunner)
 
         # 2. Run mocked up test
-        _arguments = MockExternalScriptArguments()
+        _arguments = MockExternalScriptCallArguments()
         _runner.run(_arguments)
 
         # 3. Verify final expectations

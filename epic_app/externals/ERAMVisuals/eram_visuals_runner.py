@@ -18,44 +18,32 @@ from epic_app.externals.try_hard_script_arguments_protocol import (
 
 class EramVisualsScriptArguments(TryHardScriptArgumentsProtocol):
     class MainCall(TryHardScriptCallProtocol):
+        def __init__(self, eram_visuals: EramVisualsScriptArguments) -> None:
+            self._eram_visuals = eram_visuals
+
         def as_main_call(self) -> List[Union[Path, str]]:
-            return [
-                EramVisualsScriptArguments._get_main_call_rscript_location(),
-                self._eram_visuals,
-                self._csv_input,
-                self._output_dir,
-                "--verbose",
-            ]
+            _call = [self._eram_visuals._get_main_call_rscript_location()]
+            _call.extend(self._eram_visuals._get_arguments())
+            return _call
 
         def as_fallback_call(self) -> List[Union[Path, str]]:
-            return [
-                EramVisualsScriptArguments._get_fallback_call_rscript_location(),
-                self._eram_visuals,
-                self._csv_input,
-                self._output_dir,
-                "--verbose",
-            ]
+            _call = [self._eram_visuals._get_fallback_call_rscript_location()]
+            _call.extend(self._eram_visuals._get_arguments())
+            return _call
 
     class FallbackCall(TryHardScriptCallProtocol):
+        def __init__(self, eram_visuals: EramVisualsScriptArguments) -> None:
+            self._eram_visuals = eram_visuals
+
         def as_main_call(self) -> List[str]:
-            _call = [
-                EramVisualsScriptArguments._get_main_call_rscript_location(),
-                self._eram_visuals,
-                self._csv_input,
-                self._output_dir,
-                "--verbose",
-            ]
-            return " ".join(_call)
+            _call = [self._eram_visuals._get_main_call_rscript_location()]
+            _call.extend(self._eram_visuals._get_arguments())
+            return " ".join(map(str, _call))
 
         def as_fallback_call(self) -> List[str]:
-            _call = [
-                EramVisualsScriptArguments._get_fallback_call_rscript_location(),
-                self._eram_visuals,
-                self._csv_input,
-                self._output_dir,
-                "--verbose",
-            ]
-            return " ".join(_call)
+            _call = [self._eram_visuals._get_fallback_call_rscript_location()]
+            _call.extend(self._eram_visuals._get_arguments())
+            return " ".join(map(str, _call))
 
     main_call: MainCall
     fallback_call: FallbackCall
@@ -65,11 +53,14 @@ class EramVisualsScriptArguments(TryHardScriptArgumentsProtocol):
         csv_input: Path,
         output_dir: Path,
     ) -> None:
+        assert eram_visuals_script.is_file()
+        assert csv_input.is_file()
         self._csv_input = csv_input
         self._output_dir = output_dir
+        self.main_call = self.MainCall(self)
+        self.fallback_call = self.FallbackCall(self)
 
-    @staticmethod
-    def _get_main_call_rscript_location() -> Path:
+    def _get_main_call_rscript_location(self) -> Path:
         # NOTE: Requires installing R in your system and defining a system variable
         # for the 'Rscript' executable.
         _rscript_path = environ.get("RSCRIPT")
@@ -82,9 +73,16 @@ class EramVisualsScriptArguments(TryHardScriptArgumentsProtocol):
             raise FileNotFoundError(f"No RScript executable found at {_rscript_path}")
         return _rscript_path
 
-    @staticmethod
-    def _get_fallback_call_rscript_location() -> str:
+    def _get_fallback_call_rscript_location(self) -> str:
         return "Rscript"
+
+    def _get_arguments(self) -> List[Union[Path, str]]:
+        return [
+            eram_visuals_script,
+            self._csv_input,
+            self._output_dir,
+            "--verbose",
+        ]
 
 
 class EramVisualsRunner(ExternalRunnerProtocol):
@@ -96,12 +94,11 @@ class EramVisualsRunner(ExternalRunnerProtocol):
     ) -> EramVisualsRunner:
         _runner = cls()
         _runner.script_arguments = script_arguments
+        _runner.output_dir = script_arguments._output_dir
         return _runner
 
-    def run(self, *args, **kwargs) -> None:
-        assert eram_visuals_script.exists()
-        _output_dir = kwargs["output_dir"]
-        with ExternalRunnerLogging(self, _output_dir):
+    def run(self) -> None:
+        with ExternalRunnerLogging(self):
             _try_hard_runner = SubprocessTryHardRunner()
             try:
                 _try_hard_runner.run(self.script_arguments.main_call)

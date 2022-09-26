@@ -11,10 +11,12 @@ class ExternalRunnerLogging:
     _log_file: Path
     _file_handler: logging.FileHandler
 
-    def __init__(self, runner: ExternalRunnerProtocol, output_dir: Path) -> None:
+    def __init__(self, runner: ExternalRunnerProtocol) -> None:
         self._runner = runner
         _runner_name = self._get_runner_name()
-        self._log_file = self._initialize_log_file(output_dir / f"{_runner_name}.log")
+        self._log_file = self._initialize_log_file(
+            runner.output_dir / f"{_runner_name}.log"
+        )
         self._file_handler = self._initialize_file_handler(self._log_file)
 
     def _get_runner_name(self) -> str:

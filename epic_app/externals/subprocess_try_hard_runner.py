@@ -3,7 +3,6 @@ import subprocess
 from typing import Any
 
 from epic_app.externals.try_hard_script_arguments_protocol import (
-    TryHardScriptArgumentsProtocol,
     TryHardScriptCallProtocol,
 )
 

@@ -1,7 +1,10 @@
 from pathlib import Path
 
 from epic_app.externals.ERAMVisuals.eram_visuals_output import EramVisualsOutput
-from epic_app.externals.ERAMVisuals.eram_visuals_runner import EramVisualsRunner
+from epic_app.externals.ERAMVisuals.eram_visuals_runner import (
+    EramVisualsRunner,
+    EramVisualsScriptArguments,
+)
 from epic_app.externals.external_runner_protocol import ExternalRunnerProtocol
 from epic_app.externals.external_wrapper_protocol import ExternalWrapperProtocol
 from epic_app.externals.external_wrapper_status import ExternalWrapperStatus
@@ -11,7 +14,7 @@ class EramVisualsWrapper(ExternalWrapperProtocol):
 
     _status: ExternalWrapperStatus = None
     _output: EramVisualsOutput = None
-    _runner: ExternalRunnerProtocol = EramVisualsRunner()
+    _runner: ExternalRunnerProtocol = None
 
     def __init__(self, input_file: Path, output_dir: Path) -> None:
         super().__init__()
@@ -19,6 +22,9 @@ class EramVisualsWrapper(ExternalWrapperProtocol):
         self._input_file = input_file
         self._output_dir = output_dir
         self._output = EramVisualsOutput(output_dir)
+        self._runner = EramVisualsRunner.with_eram_arguments(
+            EramVisualsScriptArguments(csv_input=input_file, output_dir=output_dir)
+        )
 
     @property
     def status(self) -> ExternalWrapperStatus:
@@ -75,7 +81,7 @@ class EramVisualsWrapper(ExternalWrapperProtocol):
     def execute(self) -> None:
         try:
             self.initialize()
-            self._runner.run(input_file=self._input_file, output_dir=self._output_dir)
+            self._runner.run()
             self.finalize()
         except Exception as e_info:
             self.finalize_with_error(str(e_info))
