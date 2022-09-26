@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Callable, List
 
 import pytest
+from genericpath import exists
 
 from epic_app.externals.ERAMVisuals.eram_visuals_runner import (
     EramVisualsScriptArguments,
@@ -48,8 +49,8 @@ class TestEramVisualsScriptArguments:
             request.node.name.replace(" ", "_").replace("[", "__").replace("]", "__")
         )
         _output_dir = test_data_dir / type(self).__name__ / _test_case_name
-        if _output_dir.exists():
-            shutil.rmtree(_output_dir)
+        shutil.rmtree(_output_dir, ignore_errors=True)
+        _output_dir.mkdir(parents=True)
 
         _eram_args = EramVisualsScriptArguments(_csv_file, _output_dir)
         assert _eram_args
@@ -57,8 +58,9 @@ class TestEramVisualsScriptArguments:
         assert _eram_args.fallback_call
 
         # 2. Run test
+        _call_args = with_args(_eram_args)
         _return_output = subprocess.run(
-            with_args(_eram_args), shell=True, capture_output=True, text=True
+            _call_args, shell=True, capture_output=True, text=True
         )
 
         # 3. Verify final expectations.
