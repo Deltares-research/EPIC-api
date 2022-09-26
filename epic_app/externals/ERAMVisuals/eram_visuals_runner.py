@@ -35,10 +35,15 @@ class EramVisualsScriptArguments(TryHardScriptArgumentsProtocol):
         def __init__(self, eram_visuals: EramVisualsScriptArguments) -> None:
             self._eram_visuals = eram_visuals
 
+        def _wrap_paths(self, call_arg: Union[Path, str]) -> str:
+            if isinstance(call_arg, Path):
+                return '"' + str(call_arg) + '"'
+            return call_arg
+
         def as_main_call(self) -> List[str]:
             _call = [self._eram_visuals._get_main_call_rscript_location()]
             _call.extend(self._eram_visuals._get_arguments())
-            return " ".join(map(str, _call))
+            return " ".join(map(self._wrap_paths, _call))
 
         def as_fallback_call(self) -> List[str]:
             _call = [self._eram_visuals._get_fallback_call_rscript_location()]
