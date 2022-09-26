@@ -15,30 +15,28 @@ from epic_app.tests import test_data_dir
 class TestEramVisualsScriptArguments:
     csv_test_cases = [
         pytest.param("evo_summary.csv", id="ERAM Visual Sample data"),
-        pytest.param("evolution_empty_summary.csv", id="EPIC Generated sample data"),
+        # pytest.param("evolution_empty_summary.csv", id="EPIC Generated sample data"),
+    ]
+    call_args_test_cases = [
+        pytest.param(
+            lambda x: x.main_call.as_main_call(), id="Main Call - as main call"
+        ),
+        pytest.param(
+            lambda x: x.main_call.as_fallback_call(),
+            id="Main Call - as fallback call",
+        ),
+        pytest.param(
+            lambda x: x.fallback_call.as_main_call(),
+            id="Fallback Call - as main call",
+        ),
+        pytest.param(
+            lambda x: x.fallback_call.as_fallback_call(),
+            id="Fallback Call - as fallback call",
+        ),
     ]
 
     @pytest.mark.parametrize("test_file", csv_test_cases)
-    @pytest.mark.parametrize(
-        "with_args",
-        [
-            pytest.param(
-                lambda x: x.main_call.as_main_call(), id="Main Call - as main call"
-            ),
-            pytest.param(
-                lambda x: x.main_call.as_fallback_call(),
-                id="Main Call - as fallback call",
-            ),
-            pytest.param(
-                lambda x: x.fallback_call.as_main_call(),
-                id="Fallback Call - as main call",
-            ),
-            pytest.param(
-                lambda x: x.fallback_call.as_fallback_call(),
-                id="Fallback Call - as fallback call",
-            ),
-        ],
-    )
+    @pytest.mark.parametrize("with_args", call_args_test_cases)
     def test_run_subprocess_with_eram_Visuals_script_arguments(
         self, test_file: str, with_args: Callable, request: pytest.FixtureRequest
     ):
@@ -51,6 +49,7 @@ class TestEramVisualsScriptArguments:
         _output_dir = test_data_dir / type(self).__name__ / _test_case_name
         shutil.rmtree(_output_dir, ignore_errors=True)
         _output_dir.mkdir(parents=True)
+        _expected_file = _output_dir / "eram_visuals"
 
         _eram_args = EramVisualsScriptArguments(_csv_file, _output_dir)
         assert _eram_args
@@ -66,6 +65,5 @@ class TestEramVisualsScriptArguments:
         # 3. Verify final expectations.
         assert _return_output.returncode == 0, _return_output.stdout
         assert _output_dir.is_dir()
-        assert len(_output_dir.glob("*.png")) == 1
-        assert len(_output_dir.glob("*.pdf")) == 1
-        assert len(_output_dir.glob("*.log")) == 1
+        assert _expected_file.with_suffix(".png").is_file()
+        assert _expected_file.with_suffix(".pdf").is_file()
