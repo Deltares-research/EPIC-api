@@ -66,7 +66,7 @@ class EramVisualsRunner(ExternalRunner):
         except Exception as previous_exception:
             logging.error(previous_exception)
             _command = self._get_fallback_command(kwargs)
-        if platform.platform().lower() != "windows":
+        if "windows" not in platform.platform().lower():
             _command = " ".join(_command)
         logging.info(_command)
         _return_call = subprocess.call(_command, shell=True)
