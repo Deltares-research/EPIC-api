@@ -1,9 +1,8 @@
-import py_compile
 from typing import Callable
 
 import pytest
 
-from epic_app.externals.external_wrapper_base import ExternalWrapperStatus
+from epic_app.externals.external_wrapper_status import ExternalWrapperStatus
 
 
 class TestExternalWrapperStatusType:

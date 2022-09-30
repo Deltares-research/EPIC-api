@@ -1,0 +1,39 @@
+group,sub,individual,value
+E,National Sectoral Frameworks,Water Resource Management,4.2
+E,National Sectoral Frameworks,Disaster Risk Management,3
+E,National Sectoral Frameworks,Drought Risk Management,4
+E,National Sectoral Frameworks,Flood Risk Management,4
+E,Whole-of-Society Approach,Local Government ,3.4
+E,Whole-of-Society Approach,Public & Stakeholder Engagement,3
+E,Whole-of-Society Approach,Social Inclusion,3
+E,Whole-of-Society Approach,Education & Risk Communication,2
+E,Whole-of-Society Approach,Scientific Collaboration ,3
+E,Whole-of-Society Approach,Open Data,4
+E,Hydrological and Meteorological Services,National Framework NMS & NHS,4
+E,Hydrological and Meteorological Services,Co-production of services,3
+P,Flood and Drought Risk Mitigation and Contingency Planning,Integrated River Basin Planning,3
+P,Flood and Drought Risk Mitigation and Contingency Planning,Coastal Zone Management Planning,2
+P,Flood and Drought Risk Mitigation and Contingency Planning,Urban Water Supply Planning,3
+P,Flood and Drought Risk Mitigation and Contingency Planning,Irrigation Water Supply Planning,2
+P,Flood and Drought Risk Mitigation and Contingency Planning,Local Flood Risk Mitigation Planning,2
+I,Healthy Watersheds,Climate Smart Agriculture,3
+I,Healthy Watersheds,Forest Management,5.6
+I,Healthy Watersheds,Wetlands Management,3
+I,Healthy Watersheds,Local Watershed Mgt Organizations,4
+I,Healthy Watersheds,Watershed Management,4
+I,Water Resources Infrastructure,Water Resources Investment Policy,4
+I,Water Resources Infrastructure,Dam Safety,4
+I,Water Resources Infrastructure,Flood Infrastructure Safety,4
+C,Water Allocation and Groundwater Management,Flexible Water Allocation,2
+C,Water Allocation and Groundwater Management,Conjunctive Groundwater Mgt,2
+C,Floodplain Management,Floodplain Mapping,2
+C,Floodplain Management,Floodplain Regulation,1
+C,Floodplain Management,Local Flood Mitigation Planning,2
+R,"Drought Monitoring, Response and Recovery",Drought Monitoring Program,2
+R,"Drought Monitoring, Response and Recovery",WRM Drought Response,2
+R,"Drought Monitoring, Response and Recovery",Agriculture Drought Response,1
+R,"Drought Monitoring, Response and Recovery",Social Protection Drought Response,2
+R,"Flood Monitoring, Response and Recovery",Flood Forecasting and Warning,1
+R,"Flood Monitoring, Response and Recovery","Flood Emergency Prep, Resp and Relief",2.2
+R,"Flood Monitoring, Response and Recovery",Flood Disaster Recovery,1
+R,Disaster Risk Financing,Disaster Risk Financing Instruments,2
