@@ -57,6 +57,42 @@ class TestEramVisualsWrapper:
         assert eram_visuals.output.png_output.exists()
         assert eram_visuals.output.pdf_output.exists()
 
+    @pytest.mark.parametrize(
+        "csv_file",
+        csv_cases,
+    )
+    def test_execute_r_snippet_with_data_and_spaces_after_comma_succeeds(
+        self, csv_file: Path, request: pytest.FixtureRequest
+    ):
+        # 1. Define test data.
+        assert csv_file.exists()
+        _test_case_name = (
+            request.node.name.replace(" ", "_").replace("[", "__").replace("]", "__")
+        )
+        _output_dir = test_data_dir / _test_case_name
+        shutil.rmtree(_output_dir, ignore_errors=True)
+        _output_dir.mkdir(parents=True)
+
+        # 2. Modfiy file and run test.
+        _new_lines = csv_file.read_text().replace(",", " , ")
+        _csv_modified_file = _output_dir / f"modified_{csv_file.name}"
+        _csv_modified_file.write_text(_new_lines)
+
+        eram_visuals = EramVisualsWrapper(
+            input_file=_csv_modified_file,
+            output_dir=_output_dir,
+            runner=EramVisualsRunner,
+        )
+        eram_visuals.execute()
+
+        # 3. Verify final expectations.
+        assert eram_visuals.status.status_type == ExternalWrapperStatusType.SUCCEEDED
+        assert eram_visuals.output
+        assert eram_visuals.output.png_output.parent == _output_dir
+        assert eram_visuals.output.pdf_output.parent == _output_dir
+        assert eram_visuals.output.png_output.exists()
+        assert eram_visuals.output.pdf_output.exists()
+
     def test_given_failed_execute_status_is_failed(
         self, request: pytest.FixtureRequest
     ):
