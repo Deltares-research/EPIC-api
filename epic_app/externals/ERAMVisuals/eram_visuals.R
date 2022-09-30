@@ -1,48 +1,38 @@
 #! /usr/bin/Rscript
 
 # Install requred R packages (if not already installed)
-if (!require(scales)) {
-  install.packages("scales", repos = "http://cran.us.r-project.org")
-}
-if (!require(ggplot2)) {
-  install.packages("ggplot2", repos = "http://cran.us.r-project.org")
-}
-if (!require(dplyr)) {
-  install.packages("dplyr", repos = "http://cran.us.r-project.org")
-}
-if (!require(readr)) {
-  install.packages("readr", repos = "http://cran.us.r-project.org")
-}
-if (!require(stringr)) {
-  install.packages("stringr", repos = "http://cran.us.r-project.org")
-}
+def_repo <- "http://cran.us.r-project.org"
+if (!require(scales)) install.packages("scales", repos = def_repo)
+if (!require(ggplot2)) install.packages("ggplot2", repos = def_repo)
+if (!require(dplyr)) install.packages("dplyr", repos = def_repo)
+if (!require(readr)) install.packages("readr", repos = def_repo)
+if (!require(stringr)) install.packages("stringr", repos = def_repo)
+if (!require(RColorBrewer)) install.packages("RColorBrewer", repos = def_repo)
 
 ################################################################################
 # ERAM RADIAL PLOT FUNCTION
 
+ERAMRadialPlot <- function(data.to.plot = NULL,
+                           empty_bar = 2,
+                           ymin = -60,
+                           ymax = 140,
+                           label_size = 2,
+                           group_levels = c("P", "I", "C", "R", "E"),
+                           group_colors = NULL)
 
-ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
-                           ymin = -60, ymax = 140, label_size = 2,
-                           theme_colors = c("E" = "#e41a1c", "P" = "#377eb8", "I" = "#4daf4a", "C" = "#984ea3", "R" = "#ff7f00")) {
+{
+
   require(scales)
   require(ggplot2)
   require(dplyr)
+  require(RColorBrewer)
 
-  prog_levels <- data.to.plot$individual
-  group_levels <- unique(data.to.plot$group)
-  group_levels_default <- names(theme_colors)
+  # set group levels, program levels, and group colors
+  if(is.null(group_levels)) group_levels <- unique(data.to.plot$group)
+  group_colors <- setNames(colorRampPalette(brewer.pal(8, "Set2"))(length(group_levels)), group_levels)
+  prog_levels <- unique(data.to.plot$individual)
 
-  # If group levels are not same as default, update the theme_colors
-  if(!all(group_levels_default == group_levels)) {
-
-    level_colors <- NULL
-    for (n in 1:length(group_levels)) {
-      level_colors <- append(level_colors, paste0("#",paste(sample(c(0:9, LETTERS[1:6]), 6, T), collapse = "")))
-    }
-
-    theme_colors <- setNames(level_colors, group_levels)
-  }
-
+  # Prepare data for plotting
   data.template <- data.to.plot %>%
     mutate(group = factor(group, levels = group_levels)) %>%
     mutate(individual = factor(individual, levels = prog_levels)) %>%
@@ -56,9 +46,7 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
     filter(value > 0)
 
   # Rescale if there is nonzero values
-  if(nrow(data2) > 0) {
-    data2$value = scales::rescale(data2$value, to = c(20, 80), from = c(0,4))
-  }
+  if(nrow(data2) > 0) data2$value = scales::rescale(data2$value, to = c(0, 80), from = c(0,4))
 
   mindex <- which(data.template$individual %in% data2$individual)
   data.template$value[mindex] <- data2$value
@@ -165,7 +153,7 @@ ERAMRadialPlot <- function(data.to.plot, empty_bar = 2,
       colour = "black", alpha = 1, size = 6, fontface = "bold", inherit.aes = F
     ) +
 
-    scale_fill_manual(values = theme_colors)
+    scale_fill_manual(values = group_colors)
 
   if (nrow(label_dataNA) > 0) {
     p <- p + geom_text(
@@ -203,3 +191,4 @@ ggplot2::ggsave(filename = png_file, plot = p, width = 8, height = 8)
 # Save plot to pdf
 pdf_file <- file.path(output_dir, "eram_visuals.pdf")
 ggplot2::ggsave(filename = pdf_file, plot = p, width = 8, height = 8)
+
