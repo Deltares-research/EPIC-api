@@ -1,4 +1,5 @@
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -13,38 +14,46 @@ from epic_app.externals.external_wrapper_base import (
 from epic_app.tests import test_data_dir
 
 
+def _csv_file_as_pytest_param(csv_file: Path) -> pytest.param:
+    _case_id = csv_file.stem.replace("__", ".").replace("_", " ").capitalize()
+    return pytest.param(csv_file, id=_case_id)
+
+
+csv_cases = list(
+    map(
+        _csv_file_as_pytest_param,
+        (test_data_dir / "evolution_summary_examples").glob("*.csv"),
+    )
+)
+
+
 class TestEramVisualsWrapper:
     @pytest.mark.parametrize(
-        "test_file",
-        [
-            pytest.param("evo_summary.csv", id="ERAM Visual Sample data"),
-            pytest.param(
-                "evolution_empty_summary.csv", id="EPIC Generated sample data"
-            ),
-        ],
+        "csv_file",
+        csv_cases,
     )
     def test_execute_r_snippet_with_sample_data_succeeds(
-        self, test_file: str, request: pytest.FixtureRequest
+        self, csv_file: Path, request: pytest.FixtureRequest
     ):
         # 1. Define test data.
-        _csv_file = test_data_dir / "csv" / test_file
-        assert _csv_file.exists()
+        assert csv_file.exists()
         _test_case_name = (
             request.node.name.replace(" ", "_").replace("[", "__").replace("]", "__")
         )
         _output_dir = test_data_dir / _test_case_name
-        if _output_dir.exists():
-            shutil.rmtree(_output_dir)
+        shutil.rmtree(_output_dir, ignore_errors=True)
 
         # 2. Run test.
         eram_visuals = EramVisualsWrapper(
-            input_file=_csv_file, output_dir=_output_dir, runner=EramVisualsRunner
+            input_file=csv_file, output_dir=_output_dir, runner=EramVisualsRunner
         )
         eram_visuals.execute()
 
         # 3. Verify final expectations.
         assert eram_visuals.status.status_type == ExternalWrapperStatusType.SUCCEEDED
         assert eram_visuals.output
+        assert eram_visuals.output.png_output.parent == _output_dir
+        assert eram_visuals.output.pdf_output.parent == _output_dir
         assert eram_visuals.output.png_output.exists()
         assert eram_visuals.output.pdf_output.exists()
 
