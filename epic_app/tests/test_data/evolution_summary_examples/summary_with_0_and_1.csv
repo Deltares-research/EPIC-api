@@ -1,0 +1,39 @@
+group, sub, individual, value
+C,"Water Allocation and Groundwater Management","Flexible Water Allocation",1
+C,"Water Allocation and Groundwater Management","Conjunctive Groundwater Management",1
+C,"Floodplain Management","Floodplain Mapping",1
+C,"Floodplain Management","Floodplain Regulation",0
+C,"Floodplain Management","Local Flood Mitigation Planning",1
+E,"National Sectoral Frameworks","National Water Resource Management Sector Framework",1
+E,"National Sectoral Frameworks","National Disaster Risk Management Sector Framework",1
+E,"National Sectoral Frameworks","Overarching National Drought Risk Management Framework",0
+E,"National Sectoral Frameworks","Overarching Flood Risk Management Framework",1
+E,"Whole-of-Society Approach","Local Government",1
+E,"Whole-of-Society Approach","Public Participation & Stakeholder Engagement",1
+E,"Whole-of-Society Approach","Social Inclusion",1
+E,"Whole-of-Society Approach","Education & Risk Communication",0
+E,"Whole-of-Society Approach","Scientific Collaboration",0
+E,"Whole-of-Society Approach","Open Data",1
+E,"Hydrological and Meteorological Services","National Framework for NMS/NHS Services",1
+E,"Hydrological and Meteorological Services","Co-Production of Services",1
+I,"Healthy Watersheds","Agriculture Policies and Climate Smart Agriculture",0
+I,"Healthy Watersheds","Forest Management",1
+I,"Healthy Watersheds","Wetlands Management",1
+I,"Healthy Watersheds","Local Watershed Management Organizations",0
+I,"Healthy Watersheds","Watershed Management",1
+I,"Water Resources Infrastructure","Water Resources Investment Policy",1
+I,"Water Resources Infrastructure","Dam Safety",1
+I,"Water Resources Infrastructure","Flood Infrastructure Safety",0
+P,"Flood and Drought Risk Mitigation and Contingency Planning","Local Flood Risk Mitigation Planning",1
+P,"Flood and Drought Risk Mitigation and Contingency Planning","Integrated River Basin Planning",1
+P,"Flood and Drought Risk Mitigation and Contingency Planning","Coastal Zone Management Planning",0
+P,"Flood and Drought Risk Mitigation and Contingency Planning","Urban Water Supply Planning",1
+P,"Flood and Drought Risk Mitigation and Contingency Planning","Irrigation Water Supply Planning",0
+R,"Drought Monitoring, Response and Recovery","Drought Monitoring Program",0
+R,"Drought Monitoring, Response and Recovery","WRM Drought Response",1
+R,"Drought Monitoring, Response and Recovery","Agriculture Drought Response",1
+R,"Drought Monitoring, Response and Recovery","Social Protection Drought Response",0
+R,"Flood Monitoring, Response and Recovery","Flood Forecasting and Warning",1
+R,"Flood Monitoring, Response and Recovery","Flood Emergency Preparedness, Response, and Relief",1
+R,"Flood Monitoring, Response and Recovery","Flood Disaster Recovery",0
+R,"Disaster Risk Financing","Disaster Risk Financing National Sector Framework and Instruments",1
