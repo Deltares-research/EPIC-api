@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 from django.db import IntegrityError, models
 from django.utils.translation import gettext_lazy as _
@@ -63,10 +63,10 @@ class EvolutionChoiceType(models.TextChoices):
         ]
 
     @staticmethod
-    def to_int(evolution_answer: EvolutionChoiceType) -> int:
+    def to_int(evolution_answer: EvolutionChoiceType) -> Optional[int]:
         _evolution_choices = EvolutionChoiceType.as_list()
         if not evolution_answer:
-            return 0
+            return None
         return _evolution_choices.index(evolution_answer)
 
     @staticmethod
