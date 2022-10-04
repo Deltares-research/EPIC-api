@@ -70,9 +70,10 @@ class TestSummaryEvolutionSerializer:
                     .all()
                     .values_list("selected_choice", flat=True)
                 )
-                if not _answers:
-                    _answers = [0]
-                user_avg.append(mean(list(map(EvolutionChoiceType.to_int, _answers))))
+                if _answers:
+                    user_avg.append(
+                        mean(list(map(EvolutionChoiceType.to_int, _answers)))
+                    )
             org_avg.append(mean(user_avg))
         program_avg = round(mean(org_avg), 2)
 

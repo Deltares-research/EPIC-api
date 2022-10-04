@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 from rest_framework import serializers
 
@@ -31,41 +31,47 @@ class SummaryLinkagesSerializer(serializers.ModelSerializer):
 class SummaryEvolutionSerializer(serializers.ModelSerializer):
     """
     - Avg(ResponsesOrganization(Avg(ResponseUsers))
-            - Each user averages their total evolution answers.
-            - For every organization the total evolution answers got averaged for all users.
+    - Each user averages their total evolution answers.
+    - For every organization the total evolution answers got averaged for all users.
     """
 
     class Meta:
         model = Program
         fields = "__all__"
 
-    def _get_average(self, list_items: List[Any]) -> float:
+    def _get_average(self, list_items: List[Any]) -> Optional[float]:
         if not list_items:
-            return 0
+            return None
         return sum(list_items) / len(list_items)
 
     def _get_user_average_evolution_program(
         self, org_user: EpicUser, program: Program
-    ) -> float:
+    ) -> Optional[float]:
         _answers = EvolutionAnswer.objects.filter(
             user=org_user, question__in=program.questions.all()
         ).values_list("selected_choice", flat=True)
-        answers_as_int = []
+        _int_answers = []
         for _ans in _answers:
-            answers_as_int.append(EvolutionChoiceType.to_int(_ans))
-        return self._get_average(answers_as_int)
+            _answer_as_int = EvolutionChoiceType.to_int(_ans)
+            if _answer_as_int is not None:
+                _int_answers.append(_answer_as_int)
+        if not _int_answers:
+            return None
+        return self._get_average(_int_answers)
 
     def _get_organization_average_evolution_program(
         self, epic_org: EpicOrganization, program: Program
-    ) -> float:
+    ) -> Optional[float]:
         avg_list = []
         _users = epic_org.organization_users.all()
         if not _users:
-            return 0
+            return None
         for epic_user in _users:
-            avg_list.append(
-                self._get_user_average_evolution_program(epic_user, program)
+            _user_average_answers = self._get_user_average_evolution_program(
+                epic_user, program
             )
+            if _user_average_answers is not None:
+                avg_list.append(_user_average_answers)
         return self._get_average(avg_list)
 
     def to_representation(self, instance: Program):
@@ -74,7 +80,10 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
             self._get_organization_average_evolution_program(epic_org, instance)
             for epic_org in list(_organizations)
         ]
-        _answers_summary = round(self._get_average(_org_averages), 2)
+        _org_averages = [_org_avg for _org_avg in _org_averages if _org_avg is not None]
+        _answers_summary = 0
+        if _org_averages:
+            _answers_summary = round(self._get_average(_org_averages), 2)
         return {
             "id": instance.pk,
             "area": instance.group.area.name,
