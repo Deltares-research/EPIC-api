@@ -50,14 +50,14 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
         _answers = EvolutionAnswer.objects.filter(
             user=org_user, question__in=program.questions.all()
         ).values_list("selected_choice", flat=True)
-        answers_as_int = []
+        _int_answers = []
         for _ans in _answers:
-            _mapped_ans = EvolutionChoiceType.to_int(_ans)
-            if _mapped_ans:
-                answers_as_int.append(_mapped_ans)
-        if not answers_as_int:
+            _answer_as_int = EvolutionChoiceType.to_int(_ans)
+            if _answer_as_int is not None:
+                _int_answers.append(_answer_as_int)
+        if not _int_answers:
             return None
-        return self._get_average(answers_as_int)
+        return self._get_average(_int_answers)
 
     def _get_organization_average_evolution_program(
         self, epic_org: EpicOrganization, program: Program
@@ -70,7 +70,7 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
             _user_average_answers = self._get_user_average_evolution_program(
                 epic_user, program
             )
-            if _user_average_answers:
+            if _user_average_answers is not None:
                 avg_list.append(_user_average_answers)
         return self._get_average(avg_list)
 
@@ -80,6 +80,7 @@ class SummaryEvolutionSerializer(serializers.ModelSerializer):
             self._get_organization_average_evolution_program(epic_org, instance)
             for epic_org in list(_organizations)
         ]
+        _org_averages = [_org_avg for _org_avg in _org_averages if _org_avg is not None]
         _answers_summary = 0
         if _org_averages:
             _answers_summary = round(self._get_average(_org_averages), 2)
