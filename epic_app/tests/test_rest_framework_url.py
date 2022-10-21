@@ -155,6 +155,15 @@ class TestEpicUserViewSet:
         "is_advisor": False,
     }
 
+    def test_GET_self_epic_user(self, api_client: APIClient):
+        # Define test data.
+        set_user_auth_token(api_client, "Anakin")
+        response = api_client.get(self.url_root + "self/")
+
+        # Verify expectations
+        assert response.status_code == 200
+        assert json.loads(response.content) == self.anakin_json_data
+
     def test_GET_epic_user_as_admin(
         self,
         admin_api_client: APIClient,
