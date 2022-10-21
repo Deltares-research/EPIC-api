@@ -42,6 +42,35 @@ class EpicUserViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAdminUser]
 
     @action(
+        methods=["GET"],
+        permission_classes=[permissions.IsAuthenticated],
+        detail=False,
+        url_path="self",
+        url_name="self",
+    )
+    def retrieve_self_epicuser(self, request: Request) -> models.QuerySet:
+        """
+        Retrieves the `EpicUser` available data.
+        ASSUMPTION: The request is done with an `EpicUser`.
+
+        Args:
+            request (Request): Request from the client.
+        """
+
+        if not getattr(self.request.user, "epicuser", False):
+            return Response(
+                dict(
+                    reason=f"The authenticated user is not an 'Epic' user.",
+                ),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        sc = self.serializer_class(
+            request.user.epicuser, many=False, context={"request": request}
+        )
+
+        return Response(sc.data)
+
+    @action(
         methods=["put"],
         detail=True,
         permission_classes=[epic_permissions.IsAdminOrSelfUser],
