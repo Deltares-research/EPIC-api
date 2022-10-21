@@ -1,3 +1,14 @@
+## v1.7.0 (2022-10-21)
+
+### Feat
+
+- We now allow to retrieve the own epicuser with the token
+
+### Fix
+
+- Fixed issue from other branch
+- Fixed issue from other branch
+
 ## v1.6.6 (2022-09-23)
 
 ### Fix
