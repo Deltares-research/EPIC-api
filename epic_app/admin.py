@@ -19,10 +19,11 @@ from epic_app.models.epic_questions import (
     LinkagesQuestion,
     NationalFrameworkQuestion,
 )
-from epic_app.models.epic_user import EpicOrganization, EpicUser
+from epic_app.models.epic_user import EpicOrganization, EpicProject, EpicUser
 from epic_app.models.models import Agency, Area, Group, Program, ProgramReference
 
 # Models exposed to the admin page .
+admin.site.register(EpicProject)
 admin.site.register(EpicUser)
 admin.site.register(EpicOrganization, EpicOrganizationAdmin)
 admin.site.register(Area, AreaAdmin)

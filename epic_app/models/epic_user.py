@@ -8,8 +8,22 @@ from django.utils.crypto import get_random_string
 from rest_framework.authtoken.models import Token
 
 
+class EpicProject(models.Model):
+    name: str = models.CharField(max_length=250)
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class EpicOrganization(models.Model):
     name: str = models.CharField(max_length=250)
+    project = models.ForeignKey(
+        to=EpicProject,
+        on_delete=models.CASCADE,
+        related_name="project_organizations",
+        blank=True,
+        null=True,
+    )
 
     def __str__(self) -> str:
         return self.name
