@@ -1,3 +1,10 @@
+## v1.8.0 (2022-11-01)
+
+### Feat
+
+- **views.py**: We now generate summaries / reports for all the users within a project, not just organization-wide
+- **EpicProject**: Added EpicProject as a model with many EpicOrganization
+
 ## v1.7.0 (2022-10-21)
 
 ### Feat
