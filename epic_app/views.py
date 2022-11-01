@@ -32,6 +32,28 @@ from epic_app.serializers.report_pdf import EpicPdfReport
 from epic_app.utils import get_submodel_type, get_submodel_type_list
 
 
+def _filter_project_organizations_users_queryset(
+    request: Request,
+) -> Union[models.QuerySet, List[EpicUser]]:
+    if bool(request.user.is_staff or request.user.is_superuser):
+        return EpicUser.objects.all()
+    else:
+        epic_org = request.user.epicuser.organization
+        return EpicUser.objects.filter(organization__project=epic_org.project).all()
+
+
+def _filter_project_organizations_queryset(
+    request: Request,
+) -> Union[models.QuerySet, List[EpicOrganization]]:
+    if bool(request.user.is_staff or request.user.is_superuser):
+        return EpicOrganization.objects.all()
+    else:
+        _epic_org = EpicOrganization.objects.get(
+            id=request.user.epicuser.organization_id
+        )
+        return _epic_org.project.project_organizations.all()
+
+
 class EpicUserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Acess point for CRUD operations on `EpicUser` table.
@@ -116,19 +138,12 @@ class EpicOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
         RETRIEVES all the `Answers` for each of the `Questions` filled by the `EpicUsers` of the requested `EpicOrganization`.
         """
 
-        def _filter_queryset() -> Union[models.QuerySet, List[EpicUser]]:
-            if bool(request.user.is_staff or request.user.is_superuser):
-                return EpicUser.objects.all()
-            else:
-                epic_org = request.user.epicuser.organization
-                return epic_org.organization_users
-
         r_serializer = epic_serializer.ProgramReportSerializer(
             Program.objects.all(),
             many=True,
             context={
                 "request": request,
-                "users": _filter_queryset(),
+                "users": _filter_project_organizations_users_queryset(request),
             },
         )
         return Response(r_serializer.data)
@@ -515,8 +530,10 @@ class SummaryViewSet(viewsets.ModelViewSet):
             if bool(request.user.is_staff or request.user.is_superuser):
                 return EpicUser.objects.all()
             else:
-                epic_org = request.user.epicuser.organization
-                return epic_org.organization_users
+                _epic_project = request.user.epicuser.organization.project
+                return EpicUser.objects.filter(
+                    organization__project=_epic_project
+                ).all()
 
         r_serializer = epic_serializer.SummaryLinkagesSerializer(
             LinkagesQuestion.objects.all(),
@@ -539,16 +556,8 @@ class SummaryViewSet(viewsets.ModelViewSet):
             pk (str, optional): `Answer` id. Defaults to None.
         """
         # For now we do it for all organizations regardless of the user making the request.
-        def _filter_queryset() -> Union[models.QuerySet, List[EpicUser]]:
-            if bool(request.user.is_staff or request.user.is_superuser):
-                return EpicOrganization.objects.all()
-            else:
-                return EpicOrganization.objects.filter(
-                    id=request.user.epicuser.organization_id
-                )
-
         r_serializer = epic_serializer.SummaryOrganizationEvolutionSerializer(
-            EpicOrganization.objects.all(),
+            _filter_project_organizations_queryset(request),
             many=True,
             context={
                 "request": request,
@@ -569,7 +578,7 @@ class SummaryViewSet(viewsets.ModelViewSet):
                 many=True,
                 context={
                     "request": request,
-                    "organizations": EpicOrganization.objects.all(),
+                    "organizations": _filter_project_organizations_queryset(request),
                 },
             ).data
 
