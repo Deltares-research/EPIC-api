@@ -8,7 +8,7 @@ from epic_app.models.epic_questions import (
     LinkagesQuestion,
     NationalFrameworkQuestion,
 )
-from epic_app.models.epic_user import EpicOrganization, EpicUser
+from epic_app.models.epic_user import EpicOrganization, EpicProject, EpicUser
 from epic_app.models.models import Agency, Area, Group, Program
 from epic_app.tests import django_postgresql_db
 
@@ -39,7 +39,10 @@ def epic_test_db():
         Token.objects.get_or_create(user=u_created)
         return u_created
 
-    organization = EpicOrganization.objects.create(name="Gallactic Empire")
+    project = EpicProject.objects.create(name="Lucas Arts")
+    organization = EpicOrganization.objects.create(
+        name="Gallactic Empire", project=project
+    )
     u_palpatine: EpicUser = set_epic_user("Palpatine", organization)
     u_anakin: EpicUser = set_epic_user("Anakin", organization)
     u_dooku: EpicUser = set_epic_user("Dooku", organization)
