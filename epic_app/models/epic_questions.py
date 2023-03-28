@@ -67,7 +67,10 @@ class EvolutionChoiceType(models.TextChoices):
         _evolution_choices = EvolutionChoiceType.as_list()
         if not evolution_answer:
             return None
-        return _evolution_choices.index(evolution_answer)
+        for key, value in enumerate(_evolution_choices, start=1):
+            if value == evolution_answer:
+                return key
+        return None
 
     @staticmethod
     def from_int(answer_int: int) -> EvolutionChoiceType:
