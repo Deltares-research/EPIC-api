@@ -1,0 +1,947 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.8">
+    
+    
+      
+        <title>Admin backend. - EPIC-api documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="deltares" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#admin-backend" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="EPIC-api documentation" class="md-header__button md-logo" aria-label="EPIC-api documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            EPIC-api documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Admin backend.
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="deltares" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Deltares/EPIC-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    deltares/epic-api
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      E.P.I.C.
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../changelog/" class="md-tabs__link">
+      Changelog
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../known_issues/" class="md-tabs__link">
+      Known issues
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
+        Guides
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="EPIC-api documentation" class="md-nav__button md-logo" aria-label="EPIC-api documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8Z"/></svg>
+
+    </a>
+    EPIC-api documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Deltares/EPIC-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    deltares/epic-api
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        E.P.I.C.
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../known_issues/" class="md-nav__link">
+        Known issues
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          Guides
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Guides" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Guides
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Admin backend.
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Admin backend.
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#logging-to-the-admin-site" class="md-nav__link">
+    Logging to the admin site.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-epic-project" class="md-nav__link">
+    Creating an "Epic Project"
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-organization" class="md-nav__link">
+    Creating an Organization
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating an Organization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-users" class="md-nav__link">
+    Generating users
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-users" class="md-nav__link">
+    Creating users
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-updating-questions" class="md-nav__link">
+    Adding / Updating questions.
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding / Updating questions.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-linkages-questions" class="md-nav__link">
+    Generating linkages questions.
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#import-xlsx" class="md-nav__link">
+    Import XLSX
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-all-tables-at-once" class="md-nav__link">
+    Updating all tables at once.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleting-entries" class="md-nav__link">
+    Deleting entries.
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_deployment/" class="md-nav__link">
+        Deployment of EPIC-api
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install_on_centos/" class="md-nav__link">
+        Install on CentOS 7
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#logging-to-the-admin-site" class="md-nav__link">
+    Logging to the admin site.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-epic-project" class="md-nav__link">
+    Creating an "Epic Project"
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-organization" class="md-nav__link">
+    Creating an Organization
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating an Organization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-users" class="md-nav__link">
+    Generating users
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-users" class="md-nav__link">
+    Creating users
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-updating-questions" class="md-nav__link">
+    Adding / Updating questions.
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding / Updating questions.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-linkages-questions" class="md-nav__link">
+    Generating linkages questions.
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#import-xlsx" class="md-nav__link">
+    Import XLSX
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-all-tables-at-once" class="md-nav__link">
+    Updating all tables at once.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleting-entries" class="md-nav__link">
+    Deleting entries.
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/Deltares/EPIC-api/edit/master/docs/guides/admin_backend.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+<h1 id="admin-backend">Admin backend.<a class="headerlink" href="#admin-backend" title="Permanent link">&para;</a></h1>
+<p>As a <code>Django</code> application, we can log in its backend to manage the different tables created during <a href="../api_deployment/">deployment</a> </p>
+<h2 id="logging-to-the-admin-site">Logging to the admin site.<a class="headerlink" href="#logging-to-the-admin-site" title="Permanent link">&para;</a></h2>
+<p>To do so we need to add the <code>/admin</code> suffix to our <strong>base</strong> url. For instance, if our page is <code>www.myepicreport.nl</code>, we will add www.<code>myepicreport.nl/admin</code> to access the admin backend (Image 1).</p>
+<p>Use your admin credentials to log in and you will be redirected to the admin control panel (Image 2).</p>
+<p>The site administration should display three categories:</p>
+<ul>
+<li>"An epic app". Contains all the models (tables) defined in the Django backend which have been migrated into the database. </li>
+<li>"Auth Token". Contains all the generated authentication tokes for registered users. An authentication token <strong>is required</strong> for the frontend to interact with the API.</li>
+<li>"Authentication and Authorization". Django inherited tables. We don't use them except when creating a new <code>admin</code> user (which is not necessarily an <code>epic user</code>).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">Image 1. Django admin log in page</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="Django admin log in page" src="../imgs/django_admin_portal.png" /></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th align="center">Image 2. Django admin control panel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="Django admin control panel" src="../imgs/django_admin_control_panel.png" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="creating-an-epic-project">Creating an "Epic Project"<a class="headerlink" href="#creating-an-epic-project" title="Permanent link">&para;</a></h2>
+<p>To create a new <code>EpicProject</code> (Image 3) simply access <code>admin/epic_app/epicproject</code> and then the "Add epic project +" button. Or you can simply click the<code>Add</code> button in the site administration table.</p>
+<p>A new <code>EpicProject</code> can also be created while <a href="#creating-an-organization">creating an organization</a></p>
+<table>
+<thead>
+<tr>
+<th align="center">Image 3. Add epic project</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="Add epic project" src="../imgs/django_add_epic_project.png" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="creating-an-organization">Creating an Organization<a class="headerlink" href="#creating-an-organization" title="Permanent link">&para;</a></h2>
+<p>To create a new <code>EpicOrganization</code> (Image 4) simply access <code>admin/epic_app/epicorganization</code> and then the "Add epic organization +". Or you can simply click the <code>Add</code> button in the site administration table.</p>
+<p>Note that while creating an organization you will have to select a project. If your project hasn't been created yet you can do it now by simply clicking in the + next to the Project field.</p>
+<p>You can also create new users, however <strong>this is not adviced</strong>, as you'll have to generate on a different page their passwords. Otherwise it won't be possible to log in. Instead, follow the steps in the following subsection  <a href="#generating-users">Generating users</a></p>
+<table>
+<thead>
+<tr>
+<th align="center">Image 4. Add epic organization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="Add epic organization" src="../imgs/django_add_epic_organization.png" /></td>
+</tr>
+</tbody>
+</table>
+<h3 id="generating-users">Generating users<a class="headerlink" href="#generating-users" title="Permanent link">&para;</a></h3>
+<p>In the list of Epic Organizations (<code>admin/epic_app/epicorganization</code>) you will find all created organizations (Image 5). In addition you will see a link "<code>Generate entries</code>" clik on it and you will be redirect to a new page with a simple form (Image 6).
+In this form you will have to select:
+- Selected org. One of the existing organizations (among all the projects) that will contain the users to create.
+- Number of users. Users to be generated.</p>
+<p>After filling the form, and clicking "Generate epic users" you will be redirected again to the list of epic organizations. On the top of the page a notification will display the names of the selected organization and the added users (Image 7). By default, their passwords will be their usernames <strong>in lowercase</strong>.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Image 5. List epic organization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="List epic organization" src="../imgs/django_list_epic_organization.png" /></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th align="center">Image 6. Form generate users</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="Form generate users" src="../imgs/django_generate_epic_users.png" /></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th align="center">Image 7. List epic organization with added users</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="List epic organization with added users" src="../imgs/django_list_epic_organization_added_users.png" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="creating-users">Creating users<a class="headerlink" href="#creating-users" title="Permanent link">&para;</a></h2>
+<p>Although we advice to <a href="#generating-users">generate users from the organization</a> it is still possible to manually create new users. In a similar way to the previous entries.</p>
+<h2 id="adding-updating-questions">Adding / Updating questions.<a class="headerlink" href="#adding-updating-questions" title="Permanent link">&para;</a></h2>
+<p>Epic app relies strongly in the different questions being added to generate the different reports. These questions, and their type of answers, are divided in the following tables:</p>
+<ul>
+<li>National framework questions / agreement answers.</li>
+<li>Evolution questions / evolution answers.</li>
+<li>Key agency questions / agreement answers.</li>
+<li>Linkages questions / multiple choice answers.</li>
+</ul>
+<p>To update the questions you can do it manually by going to their respective "list" view, for instance <code>admin/epic_app/keyagencyactionsquestion/</code> for the Key agency questions. From the list, select a question and modify any of its fields.</p>
+<h3 id="generating-linkages-questions">Generating linkages questions.<a class="headerlink" href="#generating-linkages-questions" title="Permanent link">&para;</a></h3>
+<p>Linkages questions are quite particular as they have one entry per each <code>Program</code> entry. To generate them you will need to select the action "Regenerate all Linkages Questions" and then click "Go". This action will remove also all the related answers (<a href="#deleting-entries">deleting entries</a>).</p>
+<p>Important! If no linkages are present you won't be able to select this action. A simple workaround is to manually create a "dummy" entry and then the action will be available, said entry will be removed as explained earlier.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Image 8. Regenerate linkages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="Regenerate linkages" src="../imgs/django_regenerate_linkages_questions.png" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="import-xlsx">Import XLSX<a class="headerlink" href="#import-xlsx" title="Permanent link">&para;</a></h2>
+<p>Our backend offers the possibility to update some tables providing an <code>xlsx</code> file (this will <a href="#deleting-entries">delete the previous entries</a>). This applies for the following tables:</p>
+<ul>
+<li>Areas. This will also update the <code>Programs</code> and <code>Groups</code> tables!</li>
+<li>Agencies.</li>
+<li>National framework questions.</li>
+<li>Evolution questions.</li>
+<li>Key agency questions.</li>
+</ul>
+<p>This functionality is present via the link "Import CSV" in their list view (Image 9) (yes, the button should be changed to XLSX instead of CSV previous approach). By clicking it you will be redirected to a simple form that allows you to select and upload the <code>xlsx</code> file with the new / updated questions (Image 10).</p>
+<table>
+<thead>
+<tr>
+<th align="center">Image 9. Import XLSX option</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="Import XLSX option" src="../imgs/django_list_question_import_xlsx.png" /></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th align="center">Image 10. Import XLSX form</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="Import XLSX form" src="../imgs/django_upload_xlsx.png" /></td>
+</tr>
+</tbody>
+</table>
+<p>As a reference, when using the existing test data, these are the expected files for each question type:</p>
+<ul>
+<li>Areas -&gt; initial_epic_data.xlsx</li>
+<li>Agencies -&gt; agency_data.xlsx</li>
+<li>National framework questions -&gt; nationalframeworkquestions.xlsx</li>
+<li>Evolution questions -&gt; evolutionquestions.xlsx</li>
+<li>Key agency questions -&gt; keyagencyactionsquestions.xlsx</li>
+<li>Linkages questions. These questions are generated in a different way (check <a href="#generating-linkages-questions">Generating linkages questions</a>)</li>
+</ul>
+<h2 id="updating-all-tables-at-once">Updating all tables at once.<a class="headerlink" href="#updating-all-tables-at-once" title="Permanent link">&para;</a></h2>
+<p>It is possible to update all tables at once by using the <code>Django CLI</code> commands. You can do that by using the test data files (it expects exactly those file names for each type) and the command <code>import_epic_domain</code>:</p>
+<p><code>poetry python manage.py import_epic_domain epic_app/tests/test_data/xlsx</code></p>
+<h2 id="deleting-entries">Deleting entries.<a class="headerlink" href="#deleting-entries" title="Permanent link">&para;</a></h2>
+<p>By default Django tables will delete on CASCADE, this means that if there are strong relationships being used on a given entry they will also be deleted.</p>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../../known_issues/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Known issues" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Known issues
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../api_deployment/" class="md-footer__link md-footer__link--next" aria-label="Next: Deployment of EPIC-api" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Deployment of EPIC-api
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2022 Deltares
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    <a href="https://github.com/Deltares/EPIC-api" target="_blank" rel="noopener" title="Source code" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top"], "search": "../../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.0238f547.min.js"></script>
+      
+    
+  </body>
+</html>
