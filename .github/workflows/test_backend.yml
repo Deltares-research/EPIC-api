@@ -6,6 +6,7 @@ on:
       - [opened, synchronize, reopened]
 
 jobs:
+
   CI:
     strategy:
       fail-fast: false
@@ -44,7 +45,7 @@ jobs:
         with:
           poetry-version: 1.1.8
       - name: Cache Poetry virtualenv
-        uses: actions/cache@v3
+        uses: actions/cache@v1
         id: cache
         with:
           path: ~/.virtualenvs
